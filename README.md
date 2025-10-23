@@ -1,9 +1,7 @@
 # Aura
 Engineering Software-as-a-Service Project
 
-## Rails Application Template
-
-This repository contains a comprehensive Ruby on Rails application template that includes:
+## Rails Application
 
 - **Cucumber** for Behavior-Driven Development (BDD) stories
 - **RSpec** for unit and integration testing
@@ -14,13 +12,13 @@ This repository contains a comprehensive Ruby on Rails application template that
 To create a new Rails application using this template:
 
 ```bash
-rails new myapp -m template.rb
+rails new myapp -m main.rb
 ```
 
 Or apply the template to an existing Rails application:
 
 ```bash
-rails app:template LOCATION=template.rb
+rails app:template LOCATION=main.rb
 ```
 
 ### What's Included
