@@ -288,24 +288,4 @@ rerun.txt
 .env.local
 GITIGNORE
   end
-  
-  say "=" * 80
-  say "Rails application template applied successfully!"
-  say "=" * 80
-  say ""
-  say "Your application now includes:"
-  say "  ✓ RSpec for unit and integration testing"
-  say "  ✓ Cucumber for BDD stories and features"
-  say "  ✓ Heroku deployment configuration"
-  say "  ✓ PostgreSQL database configuration"
-  say "  ✓ Factory Bot, Faker, Capybara, and Selenium for testing"
-  say ""
-  say "Next steps:"
-  say "  1. Create the database: rails db:create"
-  say "  2. Run migrations: rails db:migrate"
-  say "  3. Run RSpec tests: bundle exec rspec"
-  say "  4. Run Cucumber features: bundle exec cucumber"
-  say "  5. Deploy to Heroku: git push heroku main"
-  say ""
-  say "=" * 80
 end
