@@ -1,10 +1,10 @@
-# Rails Template Guide
+# Main Guide
 
-This guide explains the features and configuration provided by the `template.rb` Rails application template.
+This guide explains the features and configuration provided by the `main.rb` Rails application template.
 
 ## Overview
 
-The template automatically sets up a complete testing and deployment environment for Ruby on Rails applications with:
+This automatically sets up a complete testing and deployment environment for Ruby on Rails applications with:
 - **RSpec** for unit and integration testing
 - **Cucumber** for Behavior-Driven Development (BDD)
 - **Heroku** deployment configuration with PostgreSQL
