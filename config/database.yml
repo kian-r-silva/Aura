@@ -5,11 +5,11 @@ default: &default
 
 development:
   <<: *default
-  database: <%= app_name %>_development
+  database: <%= ENV.fetch('APP_NAME') { File.basename(File.expand_path('..', __dir__)) } %>_development
 
 test:
   <<: *default
-  database: <%= app_name %>_test
+  database: <%= ENV.fetch('APP_NAME') { File.basename(File.expand_path('..', __dir__)) } %>_test
 
 production:
   <<: *default
