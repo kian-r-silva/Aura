@@ -3,7 +3,7 @@
 <%= form_with url: session_path, local: true do |f| %>
   <div>
     <%= label_tag :email, "Email" %><br>
-    <%= email_field_tag :email %>
+    <%= email_field_tag :email, nil, autocomplete: "email" %>
   </div>
 
   <div>

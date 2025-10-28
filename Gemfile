@@ -83,4 +83,11 @@ end
 group :development do
   gem "annotate"
 end
+
 gem "pg", "~> 1.5"
+
+group :development, :test do
+  gem 'rubocop', require: false
+  gem 'rubocop-rails', require: false
+  gem 'erb_lint', require: false
+end
