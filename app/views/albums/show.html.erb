@@ -1,2 +1,16 @@
-<h1>Albums#show</h1>
-<p>Find me in app/views/albums/show.html.erb</p>
+<h1><%= @album.title %> — <%= @album.artist %></h1>
+
+<h2>Reviews</h2>
+<%= render @album.reviews %>
+
+<% if current_user %>
+  <%= form_with model: [@album, Review.new], local: true do |f| %>
+    <%= f.label :rating %>
+    <%= f.number_field :rating, in: 1..5 %>
+    <%= f.label :comment %>
+    <%= f.text_area :comment %>
+    <%= f.submit "Add review" %>
+  <% end %>
+<% else %>
+  <p><a href="<%= new_session_path %>">Sign in</a> to review</p>
+<% end %>

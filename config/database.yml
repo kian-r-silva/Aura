@@ -1,15 +1,18 @@
 default: &default
   adapter: postgresql
   encoding: unicode
+  host: <%= ENV['DB_HOST'] || 'localhost' %>
+  username: <%= ENV['DB_USER'] || 'dev' %>
+  password: <%= ENV['DB_PASSWORD'] || 'pass' %>
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 
 development:
   <<: *default
-  database: <%= ENV.fetch('APP_NAME') { File.basename(File.expand_path('..', __dir__)) } %>_development
+  database: aura_development
 
 test:
   <<: *default
-  database: <%= ENV.fetch('APP_NAME') { File.basename(File.expand_path('..', __dir__)) } %>_test
+  database: aura_test
 
 production:
   <<: *default
