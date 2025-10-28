@@ -1,2 +1,7 @@
-<h1>Albums#index</h1>
-<p>Find me in app/views/albums/index.html.erb</p>
+<h2>Albums</h2>
+<%= link_to "Add album", new_album_path %>
+<ul>
+  <% @albums.each do |a| %>
+    <li><%= link_to "#{a.title} — #{a.artist}", album_path(a) %></li>
+  <% end %>
+</ul>

@@ -1,9 +1,10 @@
 default: &default
   adapter: postgresql
   encoding: unicode
-  host: <%= ENV['DB_HOST'] || 'localhost' %>
-  username: <%= ENV['DB_USER'] || 'dev' %>
-  password: <%= ENV['DB_PASSWORD'] || 'pass' %>
+  # If DB_HOST is set (docker/remote), use it; otherwise omit host to use local socket
+  host: <%= ENV['DB_HOST'] || nil %>
+  username: <%= ENV['DB_USER'] || ENV['USER'] %>
+  password: <%= ENV['DB_PASSWORD'] || nil %>
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 
 development:

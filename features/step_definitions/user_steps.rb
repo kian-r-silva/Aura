@@ -13,6 +13,8 @@ Then("I should see {string}") do |text|
 end
 
 Given("I am signed in as {string}") do |email|
-  user = User.find_by(email: email) || User.create!(name: "Test", email: email)
-  page.set_rack_session(user_id: user.id)
+  user = User.find_by(email: email) || User.create!(name: "Test User", email: email)
+  visit new_session_path
+  fill_in "Email", with: user.email
+  click_button "Sign in"
 end
