@@ -3,22 +3,24 @@ require 'rails_helper'
 RSpec.describe "Sessions", type: :request do
   describe "GET /new" do
     it "returns http success" do
-      get "/sessions/new"
+      get new_session_path
       expect(response).to have_http_status(:success)
     end
   end
 
-  describe "GET /create" do
-    it "returns http success" do
-      get "/sessions/create"
-      expect(response).to have_http_status(:success)
+  describe "POST /create" do
+    it "creates a session (login) with valid credentials" do
+      user = FactoryBot.create(:user)
+  post session_path, params: { login: user.username, password: 'password123' }
+      # login typically redirects
+      expect(response).to have_http_status(:redirect)
     end
   end
 
-  describe "GET /destroy" do
-    it "returns http success" do
-      get "/sessions/destroy"
-      expect(response).to have_http_status(:success)
+  describe "DELETE /destroy" do
+    it "logs out and redirects" do
+      delete session_path
+      expect(response).to have_http_status(:redirect)
     end
   end
 
