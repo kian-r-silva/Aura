@@ -47,3 +47,4 @@ rerun.txt
 .env
 .env.local
 .local.env
+vendor/bundle
