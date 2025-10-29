@@ -154,6 +154,7 @@ GEM
       irb (~> 1.10)
       reline (>= 0.3.8)
     diff-lcs (1.6.2)
+    docile (1.4.1)
     dotenv (3.1.8)
     drb (2.2.3)
     ed25519 (1.4.0)
@@ -437,6 +438,12 @@ GEM
       rubyzip (>= 1.2.2)
     shoulda-matchers (5.3.0)
       activesupport (>= 5.2.0)
+    simplecov (0.22.0)
+      docile (~> 1.1)
+      simplecov-html (~> 0.11)
+      simplecov_json_formatter (~> 0.1)
+    simplecov-html (0.13.2)
+    simplecov_json_formatter (0.1.4)
     smart_properties (1.17.0)
     snaky_hash (2.0.3)
       hashie (>= 0.1.0, < 6)
@@ -555,6 +562,7 @@ DEPENDENCIES
   rubocop-rails-omakase
   selenium-webdriver
   shoulda-matchers (~> 5.0)
+  simplecov
   solid_cable
   solid_cache
   solid_queue
