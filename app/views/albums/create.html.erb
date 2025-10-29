@@ -1,2 +1,46 @@
-<h1>Albums#create</h1>
-<p>Find me in app/views/albums/create.html.erb</p>
+<h2>Sign up for Aura</h2>
+<p class="text-muted">Join the community and start tracking your music taste</p>
+
+<%= form_with model: @user, local: true do |f| %>
+  <% if @user.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h2>
+      <ul>
+        <% @user.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :name, "Full Name" %><br>
+    <%= f.text_field :name, placeholder: "Kian Silva" %>
+  </div>
+
+  <div>
+    <%= f.label :username, "Username" %><br>
+    <%= f.text_field :username, autocomplete: "username", placeholder: "kian" %>
+  </div>
+
+  <div>
+    <%= f.label :email, "Email Address" %><br>
+    <%= f.email_field :email, autocomplete: "email", placeholder: "you@example.com" %>
+  </div>
+
+  <div>
+    <%= f.label :password, "Password" %><br>
+    <%= f.password_field :password, autocomplete: "new-password", placeholder: "Min 6 characters" %>
+  </div>
+
+  <div>
+    <%= f.label :password_confirmation, "Confirm Password" %><br>
+    <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
+  </div>
+
+  <div>
+    <%= f.submit "Create Account" %>
+  </div>
+<% end %>
+
+<p class="text-muted mt-lg">Already have an account? <%= link_to "Sign in here", new_session_path %></p>
