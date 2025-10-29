@@ -5,7 +5,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
   provider :spotify,
            ENV.fetch('SPOTIFY_CLIENT_ID', ''),
            ENV.fetch('SPOTIFY_CLIENT_SECRET', ''),
-           scope: 'user-read-email user-read-private user-library-read playlist-read-private',
+           scope: 'user-read-email user-read-private user-library-read playlist-read-private user-read-recently-played',
            redirect_uri: ENV.fetch('SPOTIFY_REDIRECT_URI', 'http://127.0.0.1:3000/auth/spotify/callback')
 end
 

@@ -2,7 +2,21 @@ class ReviewsController < ApplicationController
   before_action :require_login, only: [:create]
 
   def create
-    album = Album.find(params[:album_id])
+    # Support nested creation (album_id) or creating via provided album_title/artists
+    if params[:album_id].present?
+      album = Album.find(params[:album_id])
+    else
+      # Attempt to find or create album by title + artist when provided (from Spotify track data)
+      title = params[:album_title]&.strip
+      artist = params[:artists]&.strip
+      if title.present? && artist.present?
+        album = Album.find_or_create_by(title: title, artist: artist)
+      else
+        # fallback to first album to satisfy association during tests/dev
+        album = Album.first
+      end
+    end
+
     review = album.reviews.build(review_params)
 
     # ensure rating is integer

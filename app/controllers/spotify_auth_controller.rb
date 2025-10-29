@@ -27,4 +27,13 @@ class SpotifyAuthController < ApplicationController
     current_user.disconnect_spotify!
     redirect_to root_path, notice: 'Spotify disconnected'
   end
+
+  def token
+    token = current_user.spotify_access_token_with_refresh!
+    if token
+      render json: { access_token: token }
+    else
+      render json: { error: 'no_token' }, status: :unauthorized
+    end
+  end
 end

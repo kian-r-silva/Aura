@@ -1,3 +1,20 @@
+class SpotifyController < ApplicationController
+  before_action :require_login
+
+  def recent
+    unless current_user.spotify_connected
+      redirect_to root_path, alert: 'Connect your Spotify account first.'
+      return
+    end
+
+    client = SpotifyClient.new(current_user)
+    @tracks = client.recent_tracks(limit: 25)
+  rescue => e
+    Rails.logger.error("[SpotifyController#recent] #{e.class}: #{e.message}")
+    @tracks = []
+    flash.now[:alert] = 'Could not load recent tracks from Spotify.'
+  end
+end
 require 'net/http'
 require 'json'
 
