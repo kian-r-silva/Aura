@@ -4,7 +4,7 @@
   </div>
   
   <div class="action-links">
-    <%= link_to "➕ Add Album", new_album_path, class: "btn" %>
+    <%= link_to "Add Album", new_album_path, class: "btn" %>
   </div>
 
   <% if @albums.any? %>
@@ -19,7 +19,7 @@
     </ul>
   <% else %>
     <div class="empty-state">
-      <p>🎵 No albums yet</p>
+      <p>No albums yet</p>
       <p class="text-muted">Be the first to add an album!</p>
     </div>
   <% end %>
