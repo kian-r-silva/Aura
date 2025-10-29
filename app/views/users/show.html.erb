@@ -1,2 +1,40 @@
-<h1>Users#show</h1>
-<p>Find me in app/views/users/show.html.erb</p>
+<div class="profile-header">
+  <h1 class="profile-name"><%= @user.name %></h1>
+  <p class="profile-username">@<%= @user.username %></p>
+  
+  <% if @user.spotify_connected %>
+    <p style="color: #1db954;">🎵 Spotify Connected</p>
+  <% end %>
+  
+  <div class="profile-stats">
+    <div class="stat">
+      <div class="stat-value"><%= @user.reviews.count %></div>
+      <div class="stat-label">Reviews</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value"><%= @user.reviews.average(:rating)&.round(1) || 0 %></div>
+      <div class="stat-label">Avg Rating</div>
+    </div>
+  </div>
+</div>
+
+<h2>Recent Reviews</h2>
+
+<% if @user.reviews.any? %>
+  <% @user.reviews.order(created_at: :desc).each do |review| %>
+    <div class="review">
+      <div class="review-header">
+        <span class="review-user">
+          <%= link_to review.album.title, album_path(review.album) %> — <%= review.album.artist %>
+        </span>
+        <span class="review-rating"><%= review.rating %></span>
+      </div>
+      <p class="review-comment"><%= review.comment %></p>
+    </div>
+  <% end %>
+<% else %>
+  <div class="empty-state">
+    <p>No reviews yet</p>
+    <p class="text-muted"><%= @user.name %> hasn't reviewed any albums yet.</p>
+  </div>
+<% end %>
