@@ -1,12 +1,32 @@
 <% if current_user %>
-  <h2>Albums</h2>
-  <%= link_to "Add album", new_album_path %>
-  <ul>
-    <% @albums.each do |a| %>
-      <li><%= link_to "#{a.title} — #{a.artist}", album_path(a) %></li>
-    <% end %>
-  </ul>
+  <div class="action-links">
+    <h2>Albums</h2>
+  </div>
+  
+  <div class="action-links">
+    <%= link_to "➕ Add Album", new_album_path, class: "btn" %>
+  </div>
+
+  <% if @albums.any? %>
+    <ul>
+      <% @albums.each do |a| %>
+        <li>
+          <%= link_to album_path(a) do %>
+            <strong><%= a.title %></strong> — <%= a.artist %>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <div class="empty-state">
+      <p>🎵 No albums yet</p>
+      <p class="text-muted">Be the first to add an album!</p>
+    </div>
+  <% end %>
 <% else %>
-  <h2>Albums</h2>
-  <p>You must <%= link_to "sign in", new_session_path %> or <%= link_to "sign up", new_user_path %> to view albums.</p>
+  <div class="text-center">
+    <h2>Welcome to Aura</h2>
+    <p>Where Music Taste Comes to Life</p>
+    <p>You must <%= link_to "sign in", new_session_path %> or <%= link_to "sign up", new_user_path %> to view albums.</p>
+  </div>
 <% end %>
