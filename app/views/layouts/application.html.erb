@@ -1,32 +1,38 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Aura</title>
+    <title>Aura - Where Music Taste Comes to Life</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "application" %>
   </head>
 
   <body>
     <header>
-      <h1><%= link_to "Aura", root_path %></h1>
-      <% if current_user %>
-        Signed in as <%= current_user.name %> |
-        <% if current_user.spotify_connected %>
-          <%= button_to "Disconnect Spotify", disconnect_spotify_path, method: :delete, form: { class: "inline-signout", 'data-turbo': 'false' } %> |
-        <% else %>
-          <% if Rails.env.development? %>
-            <!-- Use GET in development to avoid OmniAuth POST authenticity protection while debugging local flow -->
-            <%= link_to "Connect Spotify", "/auth/spotify" %> |
+      <h1><%= link_to "🎵 Aura", root_path %></h1>
+      
+      <div class="nav-user-info">
+        <% if current_user %>
+          Signed in as <strong><%= current_user.name %></strong> | 
+          <%= link_to "Albums", albums_path %> |
+          <%= link_to "Profile", user_path(current_user) %> |
+          <% if current_user.spotify_connected %>
+            <span style="color: #1db954;">● Connected</span> |
+            <%= button_to "Disconnect Spotify", disconnect_spotify_path, method: :delete, form: { class: "inline-signout", 'data-turbo': 'false' } %> |
           <% else %>
-            <%= button_to "Connect Spotify", "/auth/spotify", method: :post, form: { 'data-turbo': 'false' } %> |
+            <% if Rails.env.development? %>
+              <%= link_to "Connect Spotify", "/auth/spotify" %> |
+            <% else %>
+              <%= button_to "Connect Spotify", "/auth/spotify", method: :post, form: { 'data-turbo': 'false' } %> |
+            <% end %>
           <% end %>
+          <%= button_to "Sign out", session_path, method: :delete, form: { class: "inline-signout" } %>
+        <% else %>
+          <%= link_to "Sign in", new_session_path %> |
+          <%= link_to "Sign up", new_user_path %>
         <% end %>
-        <%= button_to "Sign out", session_path, method: :delete, form: { class: "inline-signout" } %>
-      <% else %>
-        <%= link_to "Sign in", new_session_path %> |
-        <%= link_to "Sign up", new_user_path %>
-      <% end %>
+      </div>
     </header>
 
     <% flash.each do |k,v| %>
