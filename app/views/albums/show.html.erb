@@ -21,5 +21,6 @@
     </div>
   <% end %>
 <% else %>
-  <p><%= link_to "Sign in", new_session_path %> to leave a review.</p>
+  <h2>Album</h2>
+  <p>You must <%= link_to "sign in", new_session_path %> or <%= link_to "sign up", new_user_path %> to view this album.</p>
 <% end %>
