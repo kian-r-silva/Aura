@@ -7,3 +7,8 @@ Feature: Sign up / Login
     Given I am on the sign up page
     When I sign up with "Kian" and "kian@example.com"
     Then I should see "Welcome, Kian"
+
+  Scenario: Sign out
+    Given I am signed in as "kian@example.com"
+    When I sign out
+    Then I should see "Sign in"

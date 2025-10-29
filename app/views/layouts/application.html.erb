@@ -9,10 +9,10 @@
 
   <body>
     <header>
-      <h1><a href="<%= root_path %>">Aura</a></h1>
+      <h1><%= link_to "Aura", root_path %></h1>
       <% if current_user %>
         Signed in as <%= current_user.name %> |
-        <%= link_to "Sign out", session_path, method: :delete %>
+        <%= button_to "Sign out", session_path, method: :delete, form: { class: "inline-signout" } %>
       <% else %>
         <%= link_to "Sign in", new_session_path %> |
         <%= link_to "Sign up", new_user_path %>

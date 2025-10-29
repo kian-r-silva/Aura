@@ -1,9 +1,8 @@
 class SessionsController < ApplicationController
-  def new
-  end
+  def new; end
 
   def create
-    key = params[:login] # accepts username or email from a single field
+    key = params[:login]
     user = User.find_by(username: key) || User.find_by(email: key)
     if user&.authenticate(params[:password])
       session[:user_id] = user.id
