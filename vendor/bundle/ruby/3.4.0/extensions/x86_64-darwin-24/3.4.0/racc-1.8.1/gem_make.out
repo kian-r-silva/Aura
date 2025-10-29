@@ -1,0 +1,18 @@
+current directory: /Users/nicolasfelix/Desktop/Aura/vendor/bundle/ruby/3.4.0/gems/racc-1.8.1/ext/racc/cparse
+/Users/nicolasfelix/.rbenv/versions/3.4.7/bin/ruby extconf.rb
+creating Makefile
+
+current directory: /Users/nicolasfelix/Desktop/Aura/vendor/bundle/ruby/3.4.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20251029-74838-8ngatv sitelibdir\=./.gem.20251029-74838-8ngatv clean
+
+current directory: /Users/nicolasfelix/Desktop/Aura/vendor/bundle/ruby/3.4.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20251029-74838-8ngatv sitelibdir\=./.gem.20251029-74838-8ngatv
+compiling cparse.c
+linking shared-object racc/cparse.bundle
+
+current directory: /Users/nicolasfelix/Desktop/Aura/vendor/bundle/ruby/3.4.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20251029-74838-8ngatv sitelibdir\=./.gem.20251029-74838-8ngatv install
+/usr/bin/install -c -m 0755 cparse.bundle ./.gem.20251029-74838-8ngatv/racc
+
+current directory: /Users/nicolasfelix/Desktop/Aura/vendor/bundle/ruby/3.4.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20251029-74838-8ngatv sitelibdir\=./.gem.20251029-74838-8ngatv clean
