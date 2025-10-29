@@ -1,20 +1,31 @@
-<h2>Sign in to Aura</h2>
-<p class="text-muted">Welcome back! Sign in to continue tracking your music</p>
+<h2>Add a New Album</h2>
+<p class="text-muted">Share an album you've been listening to</p>
 
-<%= form_with url: session_path, local: true do |f| %>
+<%= form_with model: @album, local: true do |f| %>
+  <% if @album.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@album.errors.count, "error") %> prohibited this album from being saved:</h2>
+      <ul>
+        <% @album.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
   <div>
-    <%= label_tag :login, "Username or Email" %><br>
-    <%= text_field_tag :login, nil, autocomplete: "username", placeholder: "Enter your username or email" %>
+    <%= f.label :title, "Album Title" %><br>
+    <%= f.text_field :title, placeholder: "Kid A" %>
   </div>
 
   <div>
-    <%= label_tag :password, "Password" %><br>
-    <%= password_field_tag :password, nil, autocomplete: "current-password", placeholder: "Enter your password" %>
+    <%= f.label :artist, "Artist Name" %><br>
+    <%= f.text_field :artist, placeholder: "Radiohead" %>
   </div>
 
   <div>
-    <%= submit_tag "Sign In" %>
+    <%= f.submit "Add Album" %>
   </div>
 <% end %>
 
-<p class="text-muted mt-lg">Don't have an account? <%= link_to "Sign up here", new_user_path %></p>
+<p class="text-muted mt-lg"><%= link_to "← Back to albums", albums_path %></p>
