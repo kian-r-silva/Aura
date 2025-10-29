@@ -1,36 +1,24 @@
 <% if current_user %>
-  <div class="action-links">
-    <h2>Albums</h2>
-  </div>
-  
-  <div class="action-links">
-    <%= link_to "Add Album", new_album_path, class: "btn" %>
-  </div>
+
 
   <% if current_user && current_user.spotify_connected? %>
+    <div class="spotify-search" style="margin-bottom:18px;">
+      <%= form_with url: spotify_search_path, method: :get, local: true do |f| %>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <%= f.text_field :q, placeholder: 'Search Spotify — song or artist', value: params[:q], size: 40, class: 'input' %>
+          <%= f.submit 'Search & Review', class: 'btn btn-primary' %>
+        </div>
+      <% end %>
+    </div>
     <div class="cta-recent" style="border:1px solid #eee; padding:12px; margin-bottom:16px; background:#f9f9f9;">
       <h3>Review songs you recently played</h3>
       <p>Pick a few of the tracks you listened to recently and add your thoughts.</p>
       <%= link_to "Review recently played", spotify_recent_path, class: "btn btn-primary" %>
     </div>
+
+    
   <% end %>
 
-  <% if @albums.any? %>
-    <ul>
-      <% @albums.each do |a| %>
-        <li>
-          <%= link_to album_path(a) do %>
-            <strong><%= a.title %></strong> — <%= a.artist %>
-          <% end %>
-        </li>
-      <% end %>
-    </ul>
-  <% else %>
-    <div class="empty-state">
-      <p>No albums yet</p>
-      <p class="text-muted">Be the first to add an album!</p>
-    </div>
-  <% end %>
 <% else %>
   <div class="text-center">
     <h2>Welcome to Aura</h2>

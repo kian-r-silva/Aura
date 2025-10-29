@@ -32,6 +32,30 @@ class SpotifyClient
     []
   end
 
+  # Search tracks by query string. Returns array similar to recent_tracks.
+  def search_tracks(query, limit: 10)
+    return [] unless query.present?
+
+    resp = api_get('/v1/search', { q: query, type: 'track', limit: limit })
+    return [] unless resp && resp.status == 200
+
+    body = JSON.parse(resp.body)
+    items = body.dig('tracks', 'items') || []
+    items.map do |track|
+      {
+        id: track['id'],
+        name: track['name'],
+        artists: (track['artists'] || []).map { |a| a['name'] }.join(', '),
+        album: track.dig('album', 'name'),
+        image: track.dig('album', 'images', 0, 'url'),
+        external_url: track.dig('external_urls', 'spotify')
+      }
+    end
+  rescue StandardError => e
+    Rails.logger.error("[SpotifyClient#search_tracks] #{e.class}: #{e.message}")
+    []
+  end
+
   private
 
   def api_get(path, params = {})

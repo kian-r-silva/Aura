@@ -14,13 +14,27 @@ class SpotifyController < ApplicationController
     @tracks = []
     flash.now[:alert] = 'Could not load recent tracks from Spotify.'
   end
-end
-require 'net/http'
-require 'json'
 
-class SpotifyController < ApplicationController
-  before_action :require_login
+  # Search page - shows a search box and results when q is present
+  def search
+    unless current_user.spotify_connected
+      redirect_to root_path, alert: 'Connect your Spotify account first.'
+      return
+    end
 
+    @query = params[:q]&.to_s
+    @tracks = []
+    if @query.present?
+      client = SpotifyClient.new(current_user)
+      @tracks = client.search_tracks(@query, limit: 25)
+    end
+  rescue => e
+    Rails.logger.error("[SpotifyController#search] #{e.class}: #{e.message}")
+    @tracks = []
+    flash.now[:alert] = 'Could not search Spotify.'
+  end
+
+  # existing my_tracks helper left for convenience (optional)
   def my_tracks
     token = current_user.spotify_access_token_with_refresh!
     return redirect_to root_path, alert: 'Spotify not connected' unless token

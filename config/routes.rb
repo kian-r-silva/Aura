@@ -23,4 +23,6 @@ Rails.application.routes.draw do
   get '/spotify/recent', to: 'spotify#recent', as: :spotify_recent
   # Server endpoint that returns a fresh access token for the logged-in user (used by Web Playback SDK)
   get '/spotify/token', to: 'spotify_auth#token', as: :spotify_token
+  # Search Spotify tracks (q param)
+  get '/spotify/search', to: 'spotify#search', as: :spotify_search
 end
