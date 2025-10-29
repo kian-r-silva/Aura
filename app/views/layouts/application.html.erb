@@ -12,6 +12,16 @@
       <h1><%= link_to "Aura", root_path %></h1>
       <% if current_user %>
         Signed in as <%= current_user.name %> |
+        <% if current_user.spotify_connected %>
+          <%= button_to "Disconnect Spotify", disconnect_spotify_path, method: :delete, form: { class: "inline-signout", 'data-turbo': 'false' } %> |
+        <% else %>
+          <% if Rails.env.development? %>
+            <!-- Use GET in development to avoid OmniAuth POST authenticity protection while debugging local flow -->
+            <%= link_to "Connect Spotify", "/auth/spotify" %> |
+          <% else %>
+            <%= button_to "Connect Spotify", "/auth/spotify", method: :post, form: { 'data-turbo': 'false' } %> |
+          <% end %>
+        <% end %>
         <%= button_to "Sign out", session_path, method: :delete, form: { class: "inline-signout" } %>
       <% else %>
         <%= link_to "Sign in", new_session_path %> |

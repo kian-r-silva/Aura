@@ -46,3 +46,4 @@ rerun.txt
 # Environment variables
 .env
 .env.local
+.local.env

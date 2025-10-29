@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_10_29_120000) do
+ActiveRecord::Schema[8.1].define(version: 2025_10_29_152000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -38,9 +38,15 @@ ActiveRecord::Schema[8.1].define(version: 2025_10_29_120000) do
     t.string "email"
     t.string "name"
     t.string "password_digest"
+    t.string "spotify_access_token"
+    t.boolean "spotify_connected", default: false
+    t.string "spotify_refresh_token"
+    t.datetime "spotify_token_expires_at"
+    t.string "spotify_uid"
     t.datetime "updated_at", null: false
     t.string "username"
     t.index ["email"], name: "index_users_on_email_unique", unique: true
+    t.index ["spotify_uid"], name: "index_users_on_spotify_uid", unique: true
     t.index ["username"], name: "index_users_on_username_unique", unique: true
   end
 
