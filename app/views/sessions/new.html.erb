@@ -2,8 +2,13 @@
 
 <%= form_with url: session_path, local: true do |f| %>
   <div>
-    <%= label_tag :email, "Email" %><br>
-    <%= email_field_tag :email, nil, autocomplete: "email" %>
+    <%= label_tag :login, "Username or Email" %><br>
+    <%= text_field_tag :login, nil, autocomplete: "username" %>
+  </div>
+
+  <div>
+    <%= label_tag :password, "Password" %><br>
+    <%= password_field_tag :password, nil, autocomplete: "current-password" %>
   </div>
 
   <div>

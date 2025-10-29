@@ -3,12 +3,14 @@ class SessionsController < ApplicationController
   end
 
   def create
-    user = User.find_by(email: params[:email])
-    if user
+    key = params[:login] # accepts username or email from a single field
+    user = User.find_by(username: key) || User.find_by(email: key)
+    if user&.authenticate(params[:password])
       session[:user_id] = user.id
       redirect_to root_path, notice: "Signed in"
     else
-      redirect_to new_user_path, alert: "No user with that email. Please sign up."
+      flash.now[:alert] = "Invalid login or password"
+      render :new, status: :unprocessable_entity
     end
   end
 

@@ -7,8 +7,23 @@
   </div>
 
   <div>
+    <%= f.label :username, "Username" %><br>
+    <%= f.text_field :username, autocomplete: "username" %>
+  </div>
+
+  <div>
     <%= f.label :email, "Email" %><br>
-    <%= f.email_field :email %>
+    <%= f.email_field :email, autocomplete: "email" %>
+  </div>
+
+  <div>
+    <%= f.label :password, "Password" %><br>
+    <%= f.password_field :password, autocomplete: "new-password" %>
+  </div>
+
+  <div>
+    <%= f.label :password_confirmation, "Password confirmation" %><br>
+    <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
   </div>
 
   <div>

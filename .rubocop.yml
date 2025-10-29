@@ -1,4 +1,6 @@
-# Omakase Ruby styling for Rails
+require:
+  - rubocop-rails
+
 inherit_gem:
   rubocop-rails: config/default.yml
 
@@ -10,7 +12,4 @@ AllCops:
     - 'node_modules/**'
     - 'tmp/**'
     - 'vendor/**'
-Rails:
-  Enabled: true
-Layout/LineLength:
-  Max: 120
+  SuggestExtensions: false
