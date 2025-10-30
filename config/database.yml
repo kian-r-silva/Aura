@@ -18,3 +18,8 @@ test:
 production:
   <<: *default
   url: <%= ENV['DATABASE_URL'] %>
+
+  # Required by solid_cable: a separate named connection called "cable"
+  cable:
+    url: <%= ENV['CABLE_DATABASE_URL'] || ENV['DATABASE_URL'] %>
+    pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
