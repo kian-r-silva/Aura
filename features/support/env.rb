@@ -6,6 +6,7 @@
 
 
 require 'cucumber/rails'
+require 'omniauth'
 
 # Ensure database_cleaner-active_record is in Gemfile
 require 'database_cleaner/active_record'
@@ -23,8 +24,46 @@ end
 
 Before do
   DatabaseCleaner.start
+  # Ensure OmniAuth runs in test mode by default for Cucumber scenarios; individual scenarios
+  # may override/mock `OmniAuth.config.mock_auth[:spotify]` as needed.
+  OmniAuth.config.test_mode = true
+end
+
+# Allow Capybara default host (www.example.com) through Rails host authorization when running
+# Cucumber. Rails blocks unknown hosts by default which makes Capybara requests return a host
+# authorization page instead of the app HTML.
+# Allow common Capybara hosts through Rails host authorization when running Cucumber.
+if defined?(Rails) && Rails.respond_to?(:application)
+  hosts = Rails.application.config.hosts
+  %w[www.example.com 127.0.0.1 localhost].each do |h|
+    hosts << h unless hosts.include?(h)
+  end
+end
+
+# Configure Capybara to bind to localhost explicitly. This helps when running Cucumber in
+# CI or where the default host/port differ from Rails' allowed hosts.
+if defined?(Capybara)
+  Capybara.server_host = '127.0.0.1'
+  Capybara.server_port = 9887
+  Capybara.app_host = "http://127.0.0.1:9887"
 end
 
 After do
   DatabaseCleaner.clean
+end
+
+# Restore any SpotifyClient instance methods that were temporarily monkeypatched by
+# Cucumber steps. This keeps the class behavior isolated per-scenario.
+After do
+  if defined?(SpotifyClient) && SpotifyClient.instance_variable_defined?(:@__cucumber_original_methods)
+    originals = SpotifyClient.instance_variable_get(:@__cucumber_original_methods) || {}
+    originals.each do |name, unbound_method|
+      SpotifyClient.class_eval do
+        define_method(name) do |*args, &blk|
+          unbound_method.bind(self).call(*args, &blk)
+        end
+      end
+    end
+    SpotifyClient.remove_instance_variable(:@__cucumber_original_methods)
+  end
 end

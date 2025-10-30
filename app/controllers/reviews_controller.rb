@@ -1,6 +1,17 @@
 class ReviewsController < ApplicationController
   before_action :require_login, only: [:create]
 
+  # Render a new review form. The form relies on @review being present.
+  def new
+    @review = Review.new
+    # Allow pre-filling album/track information when coming from Spotify search
+    @album = if params[:album_title].present? && params[:artists].present?
+               Album.find_or_initialize_by(title: params[:album_title], artist: params[:artists])
+             elsif params[:album_id].present?
+               Album.find_by(id: params[:album_id])
+             end
+  end
+
   def create
     # Support nested creation (album_id) or creating via provided album_title/artists
     if params[:album_id].present?
