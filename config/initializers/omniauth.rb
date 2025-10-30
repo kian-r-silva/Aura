@@ -25,7 +25,8 @@ end
 # mismatches when the app is accessed via `localhost:3000` but the redirect URI/environment
 # uses `127.0.0.1:3000` (or vice versa). The lambda uses the request's Host header.
 OmniAuth.config.full_host = lambda do |env|
-  scheme = env['rack.url_scheme'] || 'http'
+  forwarded_proto = env['HTTP_X_FORWARDED_PROTO']
+  scheme = forwarded_proto || env['rack.url_scheme'] || 'http'
   host = env['HTTP_HOST'] || ENV.fetch('HOST', 'localhost:3000')
   "#{scheme}://#{host}"
 end

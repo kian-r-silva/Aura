@@ -3,11 +3,20 @@ class DebugController < ActionController::Base
   # No auth required; this is development helper only
 
   def session
+    # Log session info to development log so we can watch it while exercising the auth flow.
+    Rails.logger.debug "[DEBUG] /debug/session - session.keys: #{session.keys.inspect}"
+    Rails.logger.debug "[DEBUG] /debug/session - session['omniauth.state']: #{session['omniauth.state'].inspect}"
+    Rails.logger.debug "[DEBUG] /debug/session - session dump: #{session.to_hash.inspect}"
+
     render plain: "session keys: #{session.keys.inspect}\nsession dump: #{session.to_hash.inspect}\n"
   end
 
   def auth_form
     # simple page with a form that POSTs to /auth/spotify (includes authenticity_token)
+    # Log the session when rendering the form so we can confirm the state/token is present
+    Rails.logger.debug "[DEBUG] /debug/auth_form - session.keys: #{session.keys.inspect}"
+    Rails.logger.debug "[DEBUG] /debug/auth_form - session['omniauth.state']: #{session['omniauth.state'].inspect}"
+
     render inline: <<-ERB
       <!doctype html>
       <html>
