@@ -1,4 +1,4 @@
-'''
+
 Team
 - Kian Silva (UNI: krs2205)
 - Ben Sidley (UNI:bms2227)
@@ -11,7 +11,7 @@ Team
 brew update
 brew install postgresql
 # Start Postgres service
-orew services start postgresql
+brew services start postgresql
 # Ensure your shell has a Ruby manager if needed (rbenv/rvm) and correct Ruby installed
  e.g. with rbenv:
  brew install rbenv
@@ -23,7 +23,7 @@ bundle install
 
 
 run to create env template:
-(copy from here)
+(copy from below here)
 cat > .env.local <<'EOF'
 # Local development environment variables for Aura
 RAILS_ENV=development
@@ -41,6 +41,11 @@ SPOTIFY_CLIENT_SECRET=303a74e8a1ad40e7be3dc010e0cd0be4
 SPOTIFY_REDIRECT_URI=http://localhost:3000/auth/spotify/callback
 EOF
 (END COPY)
+
+run:
+echo ".env.local" >> .gitignore
+
+
 5. Load local environment variables into your shell (so echo shows them and they are available to any child process)
 # from project root
 set -a 
@@ -48,7 +53,8 @@ source .local.env
 set +a
 
 # verify
-echo "$SPOTIFY_CLIENT_ID" echo "$SPOTIFY_REDIRECT_URI"
+echo "$SPOTIFY_CLIENT_ID"
+echo "$SPOTIFY_REDIRECT_URI"
 
 5. Ensure Postgres can create DBs/users (one-time)
 # create a superuser for the current macOs user if it doesn't exist
@@ -76,4 +82,4 @@ bin/spring stop # ensure fresh boot
 bin/rails server -p 3000
 11. Watch logs while exercising the app (recommended)
 tail -f log/development.log
-'''
+
