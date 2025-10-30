@@ -5,7 +5,7 @@ Team
 - Joao Pedro Hall Lima (UNI: jh4645)
 - Nick Felix (UNI: nf2573)
 
-
+This page is hosted on Heroku at:  https://aura-engineering-saas-279c3bd96a5a.herokuapp.com/
 
 ## Local setup
 
