@@ -11,5 +11,9 @@ require 'rails_helper'
 #   end
 # end
 RSpec.describe SessionsHelper, type: :helper do
-  pending "add some examples to (or delete) #{__FILE__}"
+  describe 'module inclusion' do
+    it 'is included in the helper object' do
+      expect(helper.class.ancestors).to include(SessionsHelper)
+    end
+  end
 end
