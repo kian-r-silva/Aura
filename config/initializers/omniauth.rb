@@ -15,10 +15,16 @@ end
 # using different hostnames (localhost vs 127.0.0.1) or tooling can debug without the
 # strict POST-only restriction. Keep this change development-only.
 OmniAuth.config.allowed_request_methods = %i[post]
-if Rails.env.development?
+
+# Allow GET+POST in development for convenience. Also allow GET when the
+# OMNIAUTH_ALLOW_GET env var is set (debugging only) so we can diagnose
+# POST/CSRF/session issues in production without changing the default
+# secure behaviour permanently.
+if Rails.env.development? || ENV['OMNIAUTH_ALLOW_GET'] == 'true'
   OmniAuth.config.allowed_request_methods = %i[get post]
-  # silence the warning about allowing GET in development convenience mode
+  # silence the warning about allowing GET in development/debug mode
   OmniAuth.config.silence_get_warning = true if OmniAuth.config.respond_to?(:silence_get_warning=)
+  Rails.logger.info "[OmniAuth] GET allowed for /auth/:provider (development or OMNIAUTH_ALLOW_GET=#{ENV['OMNIAUTH_ALLOW_GET'].inspect})"
 end
 
 # Ensure OmniAuth builds full_host dynamically from the incoming request. This avoids
