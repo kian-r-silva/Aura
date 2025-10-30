@@ -1,11 +1,11 @@
+# config/database.yml
 default: &default
   adapter: postgresql
   encoding: unicode
-  # If DB_HOST is set (docker/remote), use it; otherwise omit host to use local socket
   host: <%= ENV['DB_HOST'] || nil %>
   username: <%= ENV['DB_USER'] || ENV['USER'] %>
   password: <%= ENV['DB_PASSWORD'] || nil %>
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
 
 development:
   <<: *default
@@ -16,10 +16,12 @@ test:
   database: aura_test
 
 production:
-  <<: *default
-  url: <%= ENV['DATABASE_URL'] %>
+  # Name the main connection "primary"
+  primary:
+    url: <%= ENV['DATABASE_URL'] %>
+    pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
 
-  # Required by solid_cable: a separate named connection called "cable"
+  # SolidCable expects a connection named "cable"
   cable:
     url: <%= ENV['CABLE_DATABASE_URL'] || ENV['DATABASE_URL'] %>
     pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
