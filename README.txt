@@ -1,3 +1,4 @@
+'''
 Team
 - Kian Silva (UNI: krs2205)
 - Ben Sidley (UNI:bms2227)
@@ -75,3 +76,4 @@ bin/spring stop # ensure fresh boot
 bin/rails server -p 3000
 11. Watch logs while exercising the app (recommended)
 tail -f log/development.log
+'''
