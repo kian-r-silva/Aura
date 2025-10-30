@@ -9,7 +9,6 @@ Rails.application.config.middleware.use OmniAuth::Builder do
            redirect_uri: ENV.fetch('SPOTIFY_REDIRECT_URI', '')
 end
 
-Rails.application.config.action_controller.per_form_csrf_tokens = false
 
 # By default OmniAuth 2 requires POST for the initial /auth/:provider request so a CSRF
 # authenticity_token stored in the Rails session is submitted with the form. This is the
