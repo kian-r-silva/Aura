@@ -12,10 +12,10 @@ brew install postgresql
 # Start Postgres service
 orew services start postgresql
 # Ensure your shell has a Ruby manager if needed (rbenv/rvm) and correct Ruby installed
-# e.g. with rbenv:
-# brew install rbenv
-# rbenv install 3.4.7
-# rbenv local 3.4.7
+ e.g. with rbenv:
+ brew install rbenv
+ rbenv install 3.4.7
+ rbenv local 3.4.7
 3. Install Ruby gems
 gem install bundler # if needed
 bundle install
