@@ -40,8 +40,9 @@ PORT=3000
 # DB_PASSWORD=pass
 
 # Spotify OAuth
-SPOTIFY_CLIENT_ID=6bd70b8c95bf45df8c3dd9a4e3815f55
-SPOTIFY_CLIENT_SECRET=303a74e8a1ad40e7be3dc010e0cd0be4
+extract from repo secrets
+SPOTIFY_CLIENT_ID=
+SPOTIFY_CLIENT_SECRET=
 SPOTIFY_REDIRECT_URI=http://localhost:3000/auth/spotify/callback
 EOF
 
