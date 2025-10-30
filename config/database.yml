@@ -2,7 +2,7 @@
 default: &default
   adapter: postgresql
   encoding: unicode
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 
 development:
   <<: *default
@@ -16,10 +16,20 @@ production:
   primary:
     <<: *default
     url: <%= ENV["DATABASE_URL"] %>
+    prepared_statements: false  # pgbouncer-friendly
+
+  # Solid* engines expect these connection names to exist
+  queue:
+    <<: *default
+    url: <%= ENV["DATABASE_URL"] %>
     prepared_statements: false
 
-  # If you have a separate ActionCable DB, point it to an URL too.
-  # If you DON'T need a separate DB, delete this whole 'cable' block.
+  cache:
+    <<: *default
+    url: <%= ENV["DATABASE_URL"] %>
+    prepared_statements: false
+
   cable:
     <<: *default
-    url: <%= ENV["CABLE_DATABASE_URL"] || ENV["DATABASE_URL"] %>
+    url: <%= ENV["DATABASE_URL"] %>
+    prepared_statements: false
