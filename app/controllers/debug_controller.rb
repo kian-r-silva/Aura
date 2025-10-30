@@ -27,7 +27,7 @@ class DebugController < ActionController::Base
         <body>
           <h2>Manual Spotify auth POST</h2>
           <p>This page renders a plain form that POSTs to <code>/auth/spotify</code> and includes the Rails authenticity_token. Use this to verify the POST contains the token and cookies are sent.</p>
-          <%= form_tag('/auth/spotify', method: :post) do %>
+          <%= form_tag('/auth/spotify', method: :post, data: { turbo: false }) do %>
             <%= submit_tag 'Connect Spotify (manual POST)' %>
           <% end %>
         </body>
