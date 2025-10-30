@@ -16,6 +16,7 @@ production:
   primary:
     <<: *default
     url: <%= ENV["DATABASE_URL"] %>
+    prepared_statements: false
 
   # If you have a separate ActionCable DB, point it to an URL too.
   # If you DON'T need a separate DB, delete this whole 'cable' block.
