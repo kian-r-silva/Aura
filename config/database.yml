@@ -2,9 +2,6 @@
 default: &default
   adapter: postgresql
   encoding: unicode
-  host: <%= ENV['DB_HOST'] || nil %>
-  username: <%= ENV['DB_USER'] || ENV['USER'] %>
-  password: <%= ENV['DB_PASSWORD'] || nil %>
   pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
 
 development:
@@ -18,11 +15,10 @@ test:
 production:
   primary:
     <<: *default
-    url: <%= ENV['DATABASE_URL'] %>
-    pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
+    url: <%= ENV["DATABASE_URL"] %>
 
+  # If you have a separate ActionCable DB, point it to an URL too.
+  # If you DON'T need a separate DB, delete this whole 'cable' block.
   cable:
     <<: *default
-    url: <%= ENV['CABLE_DATABASE_URL'] || ENV['DATABASE_URL'] %>
-    pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
-
+    url: <%= ENV["CABLE_DATABASE_URL"] || ENV["DATABASE_URL"] %>
