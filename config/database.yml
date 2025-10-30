@@ -16,12 +16,13 @@ test:
   database: aura_test
 
 production:
-  # Name the main connection "primary"
   primary:
+    <<: *default
     url: <%= ENV['DATABASE_URL'] %>
     pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
 
-  # SolidCable expects a connection named "cable"
   cable:
+    <<: *default
     url: <%= ENV['CABLE_DATABASE_URL'] || ENV['DATABASE_URL'] %>
     pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
+
