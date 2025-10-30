@@ -13,8 +13,9 @@ Rails.application.routes.draw do
   get '/auth/failure', to: 'spotify_auth#failure'
   delete '/disconnect_spotify', to: 'spotify_auth#disconnect', as: :disconnect_spotify
 
-  # Development-only debug routes to inspect session and submit a manual auth form
-  if Rails.env.development?
+  # Development-only debug routes to inspect session and submit a manual auth form.
+  # Also enable when OMNIAUTH_DEBUG=true so we can safely debug on Heroku for a short time.
+  if Rails.env.development? || ENV['OMNIAUTH_DEBUG'] == 'true'
     get '/debug/session', to: 'debug#session'
     get '/debug/auth_form', to: 'debug#auth_form'
   end
