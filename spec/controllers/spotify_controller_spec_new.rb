@@ -4,7 +4,6 @@ RSpec.describe SpotifyController, type: :controller do
   let(:user) { create(:user) }
 
   before do
-    # avoid authentication boilerplate; we'll stub current_user directly
     allow(controller).to receive(:require_login).and_return(true)
   end
 
@@ -90,4 +89,3 @@ RSpec.describe SpotifyController, type: :controller do
     end
   end
 end
-
