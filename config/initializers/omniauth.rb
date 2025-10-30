@@ -1,6 +1,11 @@
 # OmniAuth + Spotify configuration
 # Uses POST-only request initiation (recommended) so provider entry points require a valid CSRF token.
 
+# Disable OmniAuth's built-in CSRF protection (AuthenticityTokenProtection) because it's
+# incompatible with Rails 7+ per-form CSRF tokens. We still have CSRF protection via Rails'
+# form authenticity token (the form includes authenticity_token via form_tag).
+OmniAuth.config.request_validation_phase = nil
+
 Rails.application.config.middleware.use OmniAuth::Builder do
   provider :spotify,
            ENV.fetch('SPOTIFY_CLIENT_ID', ''),
