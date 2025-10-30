@@ -1,5 +1,7 @@
 source "https://rubygems.org"
 
+# Ruby version
+ruby '3.4.7'
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.1.0"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
@@ -76,8 +78,8 @@ group :development, :test do
   gem "database_cleaner"
   gem "factory_bot_rails"
   gem "faker"
-  gem "capybara"
-  gem "selenium-webdriver"
+  # gem "capybara"
+  # gem "selenium-webdriver"
 end
 
 group :test do
