@@ -82,4 +82,42 @@ RSpec.describe SpotifyClient, type: :service do
       expect(result).to eq([])
     end
   end
+
+  describe '#refresh_token!' do
+    before do
+      ENV['SPOTIFY_CLIENT_ID'] = 'cid'
+      ENV['SPOTIFY_CLIENT_SECRET'] = 'secret'
+    end
+
+    it 'returns true and updates user when token refresh succeeds' do
+      user.update!(spotify_refresh_token: 'refresh-token')
+      body = { access_token: 'new-token', expires_in: 3600 }.to_json
+      resp = double('resp', status: 200, body: body)
+      conn = double('faraday')
+      allow(Faraday).to receive(:new).and_return(conn)
+      allow(conn).to receive(:post).and_return(resp)
+
+      expect(client.send(:refresh_token!)).to be true
+      user.reload
+      expect(user.spotify_access_token).to eq('new-token')
+      expect(user.spotify_token_expires_at).to be_present
+    end
+
+    it 'returns false when token endpoint errors' do
+      user.update!(spotify_refresh_token: 'refresh-token')
+      resp = double('resp', status: 500, body: 'err')
+      conn = double('faraday')
+      allow(Faraday).to receive(:new).and_return(conn)
+      allow(conn).to receive(:post).and_return(resp)
+
+      expect(client.send(:refresh_token!)).to be false
+    end
+
+    it 'returns false when env vars missing' do
+      ENV.delete('SPOTIFY_CLIENT_ID')
+      ENV.delete('SPOTIFY_CLIENT_SECRET')
+      user.update!(spotify_refresh_token: 'refresh-token')
+      expect(client.send(:refresh_token!)).to be false
+    end
+  end
 end

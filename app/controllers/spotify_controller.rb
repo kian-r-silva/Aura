@@ -48,5 +48,7 @@ class SpotifyController < ApplicationController
   rescue StandardError => e
     Rails.logger.error("Spotify API error: #{e.message}")
     @items = []
+  ensure
+    render plain: '' unless performed?
   end
 end

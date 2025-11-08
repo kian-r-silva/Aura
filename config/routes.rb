@@ -16,11 +16,7 @@ Rails.application.routes.draw do
   delete '/disconnect_spotify', to: 'spotify_auth#disconnect', as: :disconnect_spotify
 
   # Development-only debug routes to inspect session and submit a manual auth form.
-  # Also enable when OMNIAUTH_DEBUG=true so we can safely debug on Heroku for a short time.
-  if Rails.env.development? || ENV['OMNIAUTH_DEBUG'] == 'true'
-    get '/debug/session', to: 'debug#session'
-    get '/debug/auth_form', to: 'debug#auth_form'
-  end
+  # These were removed to avoid accidentally exposing session dumps in non-dev environments.
   
   # MusicBrainz JSON search endpoint used by the manual review autocomplete
   get '/musicbrainz/search', to: 'musicbrainz#search', defaults: { format: :json }
@@ -30,6 +26,8 @@ Rails.application.routes.draw do
   
   # Spotify recent tracks
   get '/spotify/recent', to: 'spotify#recent', as: :spotify_recent
+  # Optional helper endpoint used by tests and the UI to list the user's saved tracks
+  get '/spotify/my_tracks', to: 'spotify#my_tracks', as: :spotify_my_tracks
   # Server endpoint that returns a fresh access token for the logged-in user (used by Web Playback SDK)
   get '/spotify/token', to: 'spotify_auth#token', as: :spotify_token
   # Search Spotify tracks (q param)
