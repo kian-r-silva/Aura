@@ -6,6 +6,7 @@ export default class extends Controller {
   connect() {
     this.delayTimer = null
     this.abortController = null
+    console.log("✅ MusicBrainz controller connected!")
   }
 
   search(event) {
