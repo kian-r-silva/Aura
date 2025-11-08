@@ -1,5 +1,7 @@
 class ReviewsController < ApplicationController
-  before_action :require_login, only: [:create, :musicbrainz_create]
+  # require login for normal create flow; the MusicBrainz AJAX endpoint handles
+  # authentication itself so it can return JSON 401 instead of a redirect.
+  before_action :require_login, only: [:create]
 
   # Render a new review form. The form relies on @review being present.
   def new
@@ -45,6 +47,8 @@ class ReviewsController < ApplicationController
     else
       flash.now[:alert] = "Unable to save review: #{review.errors.full_messages.join(', ')}"
       @song = song
+      # ensure the view has the reviews collection (songs#show expects @reviews)
+      @reviews = @song.reviews.order(created_at: :desc)
       @review = review
       render "songs/show", status: :unprocessable_entity
     end

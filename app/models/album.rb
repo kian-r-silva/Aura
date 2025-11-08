@@ -1,4 +1,4 @@
 class Album < ApplicationRecord
-  has_many :reviews, dependent: :destroy
+  # Albums themselves no longer directly own reviews; reviews are attached to Song records.
   validates :title, :artist, presence: true
 end

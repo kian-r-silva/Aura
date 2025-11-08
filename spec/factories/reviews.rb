@@ -3,6 +3,6 @@ FactoryBot.define do
     rating { 1 }
     comment { "MyText" }
     user { nil }
-    album { nil }
+    song { nil }
   end
 end

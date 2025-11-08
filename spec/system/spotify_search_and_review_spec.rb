@@ -43,7 +43,7 @@ RSpec.describe 'Spotify search and review', type: :system do
     end
 
     fill_in 'Rating', with: 5
-    fill_in 'Comment', with: 'Classic'
+  fill_in 'Comment', with: 'Classic track! Truly timeless.'
     click_button 'Submit review'
 
     expect(page).to have_content('Classic')
