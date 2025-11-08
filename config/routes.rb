@@ -22,6 +22,9 @@ Rails.application.routes.draw do
   
   # MusicBrainz JSON search endpoint used by the manual review autocomplete
   get '/musicbrainz/search', to: 'musicbrainz#search', defaults: { format: :json }
+
+  # Create a review directly from a MusicBrainz selection (AJAX POST)
+  post '/reviews/musicbrainz_create', to: 'reviews#musicbrainz_create', as: :musicbrainz_create_review
   
   # Spotify recent tracks
   get '/spotify/recent', to: 'spotify#recent', as: :spotify_recent

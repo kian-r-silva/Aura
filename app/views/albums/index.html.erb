@@ -23,10 +23,14 @@
     <h3>Add a song manually</h3>
     <p>If you do not have Spotify connected, search MusicBrainz and add a review manually.</p>
     <div data-controller="musicbrainz-autocomplete">
-      <input data-musicbrainz-autocomplete-target="input"
-            data-action="input->musicbrainz-autocomplete#search keydown->musicbrainz-autocomplete#search"
-            placeholder="Search MusicBrainz" />
-      <ul data-musicbrainz-autocomplete-target="list"></ul>
+      <div style="display:flex;gap:8px;align-items:center;">
+   <input aria-label="Song title" placeholder="Song title" data-musicbrainz-autocomplete-target="titleInput"
+     data-action="keydown->musicbrainz-autocomplete#search" />
+   <input aria-label="Artist" placeholder="Artist" data-musicbrainz-autocomplete-target="artistInput"
+     data-action="keydown->musicbrainz-autocomplete#search" />
+   <button type="button" class="btn btn-secondary" data-action="click->musicbrainz-autocomplete#search">Search</button>
+      </div>
+      <ul data-musicbrainz-autocomplete-target="list" style="margin-top:0.5rem"></ul>
     </div>
 
   </div>

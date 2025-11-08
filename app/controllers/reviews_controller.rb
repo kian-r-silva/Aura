@@ -1,5 +1,5 @@
 class ReviewsController < ApplicationController
-  before_action :require_login, only: [:create]
+  before_action :require_login, only: [:create, :musicbrainz_create]
 
   # Render a new review form. The form relies on @review being present.
   def new
@@ -43,6 +43,40 @@ class ReviewsController < ApplicationController
       @album = album
       @review = review
       render "albums/show", status: :unprocessable_entity
+    end
+  end
+
+  # Create a new review from a MusicBrainz selection. This endpoint is used by the
+  # client-side 'Review' button on suggestions and returns JSON so the client can
+  # redirect to the created album or show an error.
+  def musicbrainz_create
+    unless current_user
+      render json: { success: false, error: 'Must be signed in' }, status: :unauthorized
+      return
+    end
+
+    track_name = params[:track_name].to_s.strip
+    album_title = params[:album_title].to_s.strip
+    artists = params[:artists].to_s.strip
+
+    if album_title.present? && artists.present?
+      album = Album.find_or_create_by(title: album_title, artist: artists)
+    else
+      # fallback: create or find an album record using album_title if available,
+      # otherwise create a lightweight album placeholder using track_name.
+      album = if album_title.present?
+                Album.find_or_create_by(title: album_title, artist: artists.presence || 'Unknown')
+              else
+                Album.find_or_create_by(title: track_name.presence || 'Unknown Release', artist: artists.presence || 'Various')
+              end
+    end
+
+    review = album.reviews.build(user: current_user, rating: params[:rating], comment: params[:comment].to_s)
+
+    if review.save
+      render json: { success: true, review_id: review.id, album_id: album.id, redirect: album_path(album) }
+    else
+      render json: { success: false, errors: review.errors.full_messages }, status: :unprocessable_entity
     end
   end
 

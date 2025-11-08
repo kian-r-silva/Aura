@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["input", "list", "title", "artists", "release", "reviewLink", "button"]
+  static targets = ["titleInput", "artistInput", "albumInput", "input", "list", "title", "artists", "release", "reviewLink", "button"]
 
   connect() {
     this.delayTimer = null
@@ -10,9 +10,21 @@ export default class extends Controller {
   }
 
   search(event) {
-    const q = this.hasInputTarget ? this.inputTarget.value.trim() : ''
-    console.debug('[MB] search triggered', { q: q, eventType: event && event.type })
-    if (!q) return this.clear()
+    // Support separate title and artist inputs. Prefer explicit title/artist targets
+    const title = this.hasTitleInputTarget ? this.titleInputTarget.value.trim() : (this.hasInputTarget ? this.inputTarget.value.trim() : '')
+  const artist = this.hasArtistInputTarget ? this.artistInputTarget.value.trim() : ''
+  const album = this.hasAlbumInputTarget ? this.albumInputTarget.value.trim() : ''
+
+    let q = ''
+    const esc = s => s.replace(/\"/g, '\\\"')
+    // Build query using title, artist, and album (release). Avoid using 'recording' field per request.
+    const parts = []
+    if (title) parts.push(`title:"${esc(title)}"`)
+    if (artist) parts.push(`artist:"${esc(artist)}"`)
+    if (album) parts.push(`release:"${esc(album)}"`)
+    q = parts.join(' AND ')
+  console.debug('[MB] search triggered', { q: q, title: title, artist: artist, eventType: event && event.type })
+  if (!q) return this.clear()
 
     const immediate = event && (event.type === 'click' || (event.type === 'keydown' && event.key === 'Enter'))
     clearTimeout(this.delayTimer)
@@ -65,9 +77,7 @@ export default class extends Controller {
       btn.textContent = 'Review'
       btn.addEventListener('click', (e) => {
         e.stopPropagation()
-        const href = `/reviews/new?album_title=${encodeURIComponent(item.release || '')}&artists=${encodeURIComponent(item.artists || '')}&track_id=${encodeURIComponent(item.id || '')}&track_name=${encodeURIComponent(item.title || '')}`
-        // navigate to the review form with prefilled params
-        window.location.href = href
+        this.createReview(item)
       })
       li.appendChild(btn)
 
@@ -106,7 +116,147 @@ export default class extends Controller {
     this.clear()
   }
 
+  createReview(item) {
+    // Open an inline modal so the user can add rating/comment before creating
+    this.showCreateModal(item)
+  }
+
   clear() {
     if (this.hasListTarget) this.listTarget.innerHTML = ''
+  }
+
+  showCreateModal(item) {
+    // remove any existing modal
+    const existing = document.getElementById('mb-create-modal')
+    if (existing) existing.remove()
+
+    const modal = document.createElement('div')
+    modal.id = 'mb-create-modal'
+    modal.style.position = 'fixed'
+    modal.style.left = 0
+    modal.style.top = 0
+    modal.style.width = '100%'
+    modal.style.height = '100%'
+    modal.style.background = 'rgba(0,0,0,0.4)'
+    modal.style.display = 'flex'
+    modal.style.alignItems = 'center'
+    modal.style.justifyContent = 'center'
+    modal.style.zIndex = 10000
+
+    const dialog = document.createElement('div')
+    dialog.style.background = 'white'
+    dialog.style.padding = '16px'
+    dialog.style.borderRadius = '8px'
+    dialog.style.width = 'min(720px, 92%)'
+    dialog.style.boxShadow = '0 6px 18px rgba(0,0,0,0.2)'
+
+    const title = document.createElement('h3')
+    title.textContent = 'Create review for selected track'
+    dialog.appendChild(title)
+
+    const info = document.createElement('div')
+    info.style.marginBottom = '8px'
+    info.innerHTML = `<div><strong>Track:</strong> ${this.escapeHtml(item.title || '')}</div><div><strong>Artist(s):</strong> ${this.escapeHtml(item.artists || '')}</div><div><strong>Album:</strong> ${this.escapeHtml(item.release || '')}</div>`
+    dialog.appendChild(info)
+
+    const form = document.createElement('div')
+    form.style.display = 'flex'
+    form.style.flexDirection = 'column'
+    form.style.gap = '8px'
+
+    const ratingWrapper = document.createElement('div')
+    ratingWrapper.style.display = 'flex'
+    ratingWrapper.style.gap = '8px'
+    ratingWrapper.style.alignItems = 'center'
+    const ratingLabel = document.createElement('label')
+    ratingLabel.textContent = 'Rating:'
+    ratingLabel.htmlFor = 'mb_modal_rating'
+    const ratingSelect = document.createElement('select')
+    ratingSelect.id = 'mb_modal_rating'
+    ratingSelect.innerHTML = '<option value="">(no rating)</option>' + [1,2,3,4,5].map(n => `<option value="${n}">${n}</option>`).join('')
+    ratingWrapper.appendChild(ratingLabel)
+    ratingWrapper.appendChild(ratingSelect)
+    form.appendChild(ratingWrapper)
+
+    const commentLabel = document.createElement('label')
+    commentLabel.textContent = 'Comment (optional):'
+    commentLabel.htmlFor = 'mb_modal_comment'
+    const commentArea = document.createElement('textarea')
+    commentArea.id = 'mb_modal_comment'
+    commentArea.rows = 4
+    commentArea.style.width = '100%'
+    form.appendChild(commentLabel)
+    form.appendChild(commentArea)
+
+    dialog.appendChild(form)
+
+    const actions = document.createElement('div')
+    actions.style.display = 'flex'
+    actions.style.gap = '8px'
+    actions.style.justifyContent = 'flex-end'
+    actions.style.marginTop = '12px'
+
+    const cancel = document.createElement('button')
+    cancel.type = 'button'
+    cancel.className = 'btn'
+    cancel.textContent = 'Cancel'
+    cancel.addEventListener('click', () => modal.remove())
+
+    const create = document.createElement('button')
+    create.type = 'button'
+    create.className = 'btn btn-primary'
+    create.textContent = 'Create review'
+    create.addEventListener('click', async () => {
+      create.disabled = true
+      create.textContent = 'Creating...'
+      const payload = {
+        album_title: item.release || '',
+        artists: item.artists || '',
+        track_id: item.id || '',
+        track_name: item.title || '',
+        rating: ratingSelect.value || null,
+        comment: commentArea.value || ''
+      }
+      try {
+        const token = document.querySelector('meta[name="csrf-token"]')?.content
+        const resp = await fetch('/reviews/musicbrainz_create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': token || ''
+          },
+          body: JSON.stringify(payload)
+        })
+        const json = await resp.json()
+        if (resp.ok && json.success) {
+          window.location.href = json.redirect || (json.album_id ? `/albums/${json.album_id}` : window.location.href)
+        } else {
+          alert('Unable to create review: ' + (json.errors ? json.errors.join(', ') : json.error || 'unknown'))
+          create.disabled = false
+          create.textContent = 'Create review'
+        }
+      } catch (e) {
+        console.error('createReview error', e)
+        alert('Network error while creating review')
+        create.disabled = false
+        create.textContent = 'Create review'
+      }
+    })
+
+    actions.appendChild(cancel)
+    actions.appendChild(create)
+    dialog.appendChild(actions)
+
+    modal.appendChild(dialog)
+    document.body.appendChild(modal)
+    // focus the rating select for quicker keyboard workflow
+    ratingSelect.focus()
+  }
+
+  escapeHtml(str) {
+    if (!str) return ''
+    return String(str).replace(/[&<>\"]/g, function (s) {
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'})[s]
+    })
   }
 }
