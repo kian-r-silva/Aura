@@ -1,11 +1,25 @@
 <h1>New Review</h1>
 
 <%= form_with model: @review, url: reviews_path do |f| %>
-  <%# Hidden fields to carry album/track info from Spotify %>
-  <%= hidden_field_tag :album_title, params[:album_title] %>
-  <%= hidden_field_tag :artists, params[:artists] %>
-  <%= hidden_field_tag :track_id, params[:track_id] %>
-  <%= hidden_field_tag :track_name, params[:track_name] %>
+  <%# Hidden fields to carry album/track info from Spotify or manual MusicBrainz selection %>
+  <%= hidden_field_tag :album_title, params[:album_title], id: 'album_title' %>
+  <%= hidden_field_tag :artists, params[:artists], id: 'artists' %>
+  <%= hidden_field_tag :track_id, params[:track_id], id: 'track_id' %>
+  <%= hidden_field_tag :track_name, params[:track_name], id: 'track_name' %>
+
+  <h3>Or add a track manually</h3>
+  <div data-controller="musicbrainz-autocomplete">
+    <label for="mb-search">Search MusicBrainz</label>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input id="mb-search" data-musicbrainz-autocomplete-target="input" data-action="input->musicbrainz-autocomplete#search keydown->musicbrainz-autocomplete#search" placeholder="Type a song or artist" />
+      <button type="button" data-action="click->musicbrainz-autocomplete#search" class="btn">Search</button>
+    </div>
+    <ul data-musicbrainz-autocomplete-target="list" style="list-style:none;padding-left:0;margin-top:0.5rem"></ul>
+    <%# connect targets to hidden fields so the controller can populate them %>
+    <input type="hidden" data-musicbrainz-autocomplete-target="title" id="mb_title" />
+    <input type="hidden" data-musicbrainz-autocomplete-target="artists" id="mb_artists" />
+    <input type="hidden" data-musicbrainz-autocomplete-target="release" id="mb_release" />
+  </div>
 
   <div>
     <%= f.label :rating %>

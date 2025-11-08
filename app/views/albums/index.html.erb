@@ -19,10 +19,23 @@
     
   <% end %>
 
+  <div class="manual-search" style="margin-top:18px;">
+    <h3>Add a song manually</h3>
+    <p>If you do not have Spotify connected, search MusicBrainz and add a review manually.</p>
+    <div data-controller="musicbrainz-autocomplete">
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input id="mb-search-home" data-musicbrainz-autocomplete-target="input" data-action="input->musicbrainz-autocomplete#search keydown->musicbrainz-autocomplete#search" placeholder="Search MusicBrainz — song or artist" size="40" />
+        <button type="button" data-action="click->musicbrainz-autocomplete#search" class="btn">Search</button>
+      </div>
+      <ul data-musicbrainz-autocomplete-target="list" style="list-style:none;padding-left:0;margin-top:0.5rem"></ul>
+      <a data-musicbrainz-autocomplete-target="reviewLink" href="#" style="display:none" class="btn btn-secondary">Review</a>
+    </div>
+  </div>
+
 <% else %>
   <div class="text-center">
     <h2>Welcome to Aura</h2>
     <p>Where Music Taste Comes to Life</p>
-    <p>You must <%= link_to "sign in", new_session_path %> or <%= link_to "sign up", new_user_path %> to view albums.</p>
+    <p>You must <%= link_to "sign in", new_session_path %> or <%= link_to "sign up", new_user_path %> to review and search songs.</p>
   </div>
 <% end %>
