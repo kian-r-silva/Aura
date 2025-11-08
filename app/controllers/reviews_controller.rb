@@ -4,31 +4,34 @@ class ReviewsController < ApplicationController
   # Render a new review form. The form relies on @review being present.
   def new
     @review = Review.new
-    # Allow pre-filling album/track information when coming from Spotify search
-    @album = if params[:album_title].present? && params[:artists].present?
-               Album.find_or_initialize_by(title: params[:album_title], artist: params[:artists])
-             elsif params[:album_id].present?
-               Album.find_by(id: params[:album_id])
-             end
+    # Allow pre-filling song/track information when coming from Spotify or MusicBrainz
+    @song = if params[:track_name].present? && params[:artists].present?
+              Song.find_or_initialize_by(title: params[:track_name], artist: params[:artists], album: params[:album_title])
+            elsif params[:song_id].present?
+              Song.find_by(id: params[:song_id])
+            end
   end
 
   def create
-    # Support nested creation (album_id) or creating via provided album_title/artists
-    if params[:album_id].present?
-      album = Album.find(params[:album_id])
+    # Find or create a Song record and attach the review to it
+    if params[:song_id].present?
+      song = Song.find(params[:song_id])
     else
-      # Attempt to find or create album by title + artist when provided (from Spotify track data)
-      title = params[:album_title]&.strip
+      title = params[:track_name]&.strip || params[:title]&.strip
       artist = params[:artists]&.strip
+      album_title = params[:album_title]&.strip
+
       if title.present? && artist.present?
-        album = Album.find_or_create_by(title: title, artist: artist)
+        song = Song.find_or_create_by(title: title, artist: artist) do |s|
+          s.album = album_title
+        end
       else
-        # fallback to first album to satisfy association during tests/dev
-        album = Album.first
+        # fallback: create a placeholder song to attach the review
+        song = Song.find_or_create_by(title: (title.presence || 'Unknown Track'), artist: (artist.presence || 'Unknown Artist'))
       end
     end
 
-    review = album.reviews.build(review_params)
+    review = song.reviews.build(review_params)
 
     # ensure rating is integer
     review.rating = review.rating.to_i if review.rating.present?
@@ -37,12 +40,13 @@ class ReviewsController < ApplicationController
     review.user = current_user || User.first || User.create!(name: "Test User", email: "test@example.com")
 
     if review.save
-      redirect_to album_path(album), notice: "Review added"
+      # Redirect to the song show page (create a songs#show view)
+      redirect_to song_path(song), notice: "Review added"
     else
       flash.now[:alert] = "Unable to save review: #{review.errors.full_messages.join(', ')}"
-      @album = album
+      @song = song
       @review = review
-      render "albums/show", status: :unprocessable_entity
+      render "songs/show", status: :unprocessable_entity
     end
   end
 
@@ -60,21 +64,18 @@ class ReviewsController < ApplicationController
     artists = params[:artists].to_s.strip
 
     if album_title.present? && artists.present?
-      album = Album.find_or_create_by(title: album_title, artist: artists)
+      song = Song.find_or_create_by(title: track_name.presence || track_name, artist: artists) do |s|
+        s.album = album_title
+      end
     else
-      # fallback: create or find an album record using album_title if available,
-      # otherwise create a lightweight album placeholder using track_name.
-      album = if album_title.present?
-                Album.find_or_create_by(title: album_title, artist: artists.presence || 'Unknown')
-              else
-                Album.find_or_create_by(title: track_name.presence || 'Unknown Release', artist: artists.presence || 'Various')
-              end
+      # fallback: create or find a song record using track_name/artist info
+      song = Song.find_or_create_by(title: (track_name.presence || 'Unknown Track'), artist: (artists.presence || 'Unknown Artist'))
     end
 
-    review = album.reviews.build(user: current_user, rating: params[:rating], comment: params[:comment].to_s)
+    review = song.reviews.build(user: current_user, rating: params[:rating], comment: params[:comment].to_s)
 
     if review.save
-      render json: { success: true, review_id: review.id, album_id: album.id, redirect: album_path(album) }
+      render json: { success: true, review_id: review.id, song_id: song.id, redirect: song_path(song) }
     else
       render json: { success: false, errors: review.errors.full_messages }, status: :unprocessable_entity
     end

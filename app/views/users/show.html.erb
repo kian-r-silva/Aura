@@ -21,11 +21,12 @@
 <h2>Recent Reviews</h2>
 
 <% if @user.reviews.any? %>
-  <% @user.reviews.order(created_at: :desc).each do |review| %>
+  <%# Order reviews by song title, artist, album as requested %>
+  <% @user.reviews.joins(:song).order(Arel.sql("songs.title ASC, songs.artist ASC, COALESCE(songs.album, '') ASC")).each do |review| %>
     <div class="review">
       <div class="review-header">
         <span class="review-user">
-          <%= link_to review.album.title, album_path(review.album) %> — <%= review.album.artist %>
+          <%= link_to review.song.title, song_path(review.song) %> — <%= review.song.artist %> <%= review.song.album.present? ? "— #{review.song.album}" : '' %>
         </span>
         <span class="review-rating"><%= review.rating %></span>
       </div>
@@ -35,6 +36,6 @@
 <% else %>
   <div class="empty-state">
     <p>No reviews yet</p>
-    <p class="text-muted"><%= @user.name %> hasn't reviewed any albums yet.</p>
+    <p class="text-muted"><%= @user.name %> hasn't reviewed any songs yet.</p>
   </div>
 <% end %>

@@ -9,6 +9,8 @@ Rails.application.routes.draw do
   # top-level review routes for creating reviews not tied to an existing album yet
   resources :reviews, only: %i[new create]
 
+  resources :songs, only: %i[show]
+
   get '/auth/spotify/callback', to: 'spotify_auth#callback'
   get '/auth/failure', to: 'spotify_auth#failure'
   delete '/disconnect_spotify', to: 'spotify_auth#disconnect', as: :disconnect_spotify

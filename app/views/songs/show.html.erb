@@ -1,0 +1,23 @@
+<div class="song-header">
+  <h1><%= @song.title %></h1>
+  <p><strong>Artist:</strong> <%= @song.artist %></p>
+  <% if @song.album.present? %>
+    <p><strong>Album:</strong> <%= @song.album %></p>
+  <% end %>
+</div>
+
+<h2>Reviews</h2>
+
+<% if @reviews.any? %>
+  <% @reviews.each do |review| %>
+    <div class="review">
+      <div class="review-header">
+        <span class="review-user"><%= link_to review.user.name, user_path(review.user) %></span>
+        <span class="review-rating"><%= review.rating %></span>
+      </div>
+      <p class="review-comment"><%= review.comment %></p>
+    </div>
+  <% end %>
+<% else %>
+  <p>No reviews yet for this song.</p>
+<% end %>
