@@ -20,6 +20,9 @@ Rails.application.routes.draw do
     get '/debug/auth_form', to: 'debug#auth_form'
   end
   
+  # MusicBrainz JSON search endpoint used by the manual review autocomplete
+  get '/musicbrainz/search', to: 'musicbrainz#search', defaults: { format: :json }
+  
   # Spotify recent tracks
   get '/spotify/recent', to: 'spotify#recent', as: :spotify_recent
   # Server endpoint that returns a fresh access token for the logged-in user (used by Web Playback SDK)
