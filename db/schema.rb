@@ -23,14 +23,23 @@ ActiveRecord::Schema[8.1].define(version: 2025_10_29_152000) do
   end
 
   create_table "reviews", force: :cascade do |t|
-    t.bigint "album_id", null: false
     t.text "comment"
     t.datetime "created_at", null: false
     t.integer "rating"
+    t.bigint "song_id"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
-    t.index ["album_id"], name: "index_reviews_on_album_id"
+    t.index ["song_id"], name: "index_reviews_on_song_id"
     t.index ["user_id"], name: "index_reviews_on_user_id"
+  end
+
+  create_table "songs", force: :cascade do |t|
+    t.string "album"
+    t.string "artist", null: false
+    t.datetime "created_at", null: false
+    t.string "musicbrainz_id"
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "users", force: :cascade do |t|
@@ -50,6 +59,5 @@ ActiveRecord::Schema[8.1].define(version: 2025_10_29_152000) do
     t.index ["username"], name: "index_users_on_username_unique", unique: true
   end
 
-  add_foreign_key "reviews", "albums"
   add_foreign_key "reviews", "users"
 end

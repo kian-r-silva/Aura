@@ -3,24 +3,27 @@
 <h2><%= @album.title %> — <%= @album.artist %></h2>
 
 <h3>Reviews</h3>
-<%= render @album.reviews %>
-
-<% if current_user %>
-  <h4>Add a review</h4>
-  <%= form_with model: [@album, @review], local: true do |f| %>
-    <div>
-      <%= f.label :rating, "Rating" %><br>
-      <%= f.number_field :rating, in: 1..5 %>
-    </div>
-    <div>
-      <%= f.label :comment, "Comment" %><br>
-      <%= f.text_area :comment %>
-    </div>
-    <div>
-      <%= f.submit "Add review" %>
+<%# Find reviews for songs that match this album+artist %>
+<%
+  reviews_for_album = Review.joins(:song).where(songs: { album: @album.title, artist: @album.artist }).order(created_at: :desc)
+%>
+<% if reviews_for_album.any? %>
+  <% reviews_for_album.each do |review| %>
+    <div class="review">
+      <div class="review-header">
+        <span class="review-user"><%= link_to review.user.name, user_path(review.user) %></span>
+        <span class="review-rating"><%= review.rating %></span>
+      </div>
+      <p class="review-comment"><%= review.comment %></p>
     </div>
   <% end %>
 <% else %>
+  <p>No reviews yet for tracks on this album.</p>
+<% end %>
+
+<% if current_user %>
+  <p><%= link_to 'Add a review for this album', new_review_path(album_title: @album.title, artists: @album.artist) %></p>
+<% else %>
   <h2>Album</h2>
-  <p>You must <%= link_to "sign in", new_session_path %> or <%= link_to "sign up", new_user_path %> to view this album.</p>
+  <p>You must <%= link_to "sign in", new_session_path %> or <%= link_to "sign up", new_user_path %> to add reviews.</p>
 <% end %>

@@ -5,6 +5,7 @@ if ENV['RAILS_ENV'] == 'test' || ENV['SPEC_COVERAGE'] == 'true'
   SimpleCov.start 'rails' do
     enable_coverage :branch
     add_filter '/spec/'
+    add_filter '/app/controllers/debug_controller.rb'
   end
 end
 

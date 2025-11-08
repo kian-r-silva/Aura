@@ -1,11 +1,23 @@
 <h1>New Review</h1>
 
 <%= form_with model: @review, url: reviews_path do |f| %>
-  <%# Hidden fields to carry album/track info from Spotify %>
-  <%= hidden_field_tag :album_title, params[:album_title] %>
-  <%= hidden_field_tag :artists, params[:artists] %>
-  <%= hidden_field_tag :track_id, params[:track_id] %>
-  <%= hidden_field_tag :track_name, params[:track_name] %>
+  <%# Hidden fields to carry album/track info from Spotify or manual MusicBrainz selection %>
+  <%= hidden_field_tag :album_title, params[:album_title], id: 'album_title' %>
+  <%= hidden_field_tag :artists, params[:artists], id: 'artists' %>
+  <%= hidden_field_tag :track_id, params[:track_id], id: 'track_id' %>
+  <%= hidden_field_tag :track_name, params[:track_name], id: 'track_name' %>
+
+  <%# Show selected track summary when params are present (Spotify or MusicBrainz Review button) %>
+  <% if params[:track_name].present? || params[:track_id].present? %>
+    <div class="selected-track" style="border:1px solid #e5e7eb;padding:12px;margin-bottom:12px;border-radius:6px;">
+      <strong>Selected track</strong>
+      <div style="margin-top:8px">
+        <div><strong>Track:</strong> <%= params[:track_name].presence || '—' %></div>
+        <div><strong>Artist(s):</strong> <%= params[:artists].presence || '—' %></div>
+        <div><strong>Album:</strong> <%= params[:album_title].presence || '—' %></div>
+      </div>
+    </div>
+  <% end %>
 
   <div>
     <%= f.label :rating %>
