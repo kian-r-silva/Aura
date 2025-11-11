@@ -9,13 +9,45 @@ class User < ApplicationRecord
 
   # Called from the OmniAuth callback
   def connect_spotify_from_auth(auth)
-    self.spotify_uid = auth['uid']
+    uid = auth['uid']
     creds = auth['credentials'] || {}
-    self.spotify_access_token = creds['token']
-    self.spotify_refresh_token = creds['refresh_token'] if creds['refresh_token'].present?
-    self.spotify_token_expires_at = Time.current + creds['expires_in'].to_i.seconds if creds['expires_in']
-    self.spotify_connected = true
-    save(validate: false)
+
+    # If another user already has this spotify_uid, unlink them first so the
+    # unique index doesn't raise at the DB level.
+    ApplicationRecord.transaction do
+      if uid.present?
+        existing = User.find_by(spotify_uid: uid)
+        if existing && existing != self
+          existing.update!(spotify_uid: nil,
+                           spotify_access_token: nil,
+                           spotify_refresh_token: nil,
+                           spotify_token_expires_at: nil,
+                           spotify_connected: false)
+        end
+        self.spotify_uid = uid
+      end
+
+      self.spotify_access_token = creds['token']
+      self.spotify_refresh_token = creds['refresh_token'] if creds['refresh_token'].present?
+      self.spotify_token_expires_at = Time.current + creds['expires_in'].to_i.seconds if creds['expires_in']
+      self.spotify_connected = true
+
+      save!(validate: false)
+    end
+  rescue ActiveRecord::RecordNotUnique
+    conflicting = User.find_by(spotify_uid: uid)
+    if conflicting && conflicting != self
+      conflicting.update!(spotify_uid: nil,
+                          spotify_access_token: nil,
+                          spotify_refresh_token: nil,
+                          spotify_token_expires_at: nil,
+                          spotify_connected: false)
+      retry
+    end
+    false
+  rescue StandardError => e
+    Rails.logger.warn("[User#connect_spotify_from_auth] #{e.class}: #{e.message}")
+    false
   end
 
   def disconnect_spotify!
