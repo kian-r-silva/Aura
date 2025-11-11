@@ -12,18 +12,17 @@ class User < ApplicationRecord
     uid = auth['uid']
     creds = auth['credentials'] || {}
 
-    # If another user already has this spotify_uid, unlink them first so the
-    # unique index doesn't raise at the DB level.
     ApplicationRecord.transaction do
       if uid.present?
-        existing = User.find_by(spotify_uid: uid)
-        if existing && existing != self
-          existing.update!(spotify_uid: nil,
-                           spotify_access_token: nil,
-                           spotify_refresh_token: nil,
-                           spotify_token_expires_at: nil,
-                           spotify_connected: false)
-        end
+        User.where(spotify_uid: uid).where.not(id: id).update_all(
+          spotify_uid: nil,
+          spotify_access_token: nil,
+          spotify_refresh_token: nil,
+          spotify_token_expires_at: nil,
+          spotify_connected: false,
+          updated_at: Time.current
+        )
+
         self.spotify_uid = uid
       end
 
