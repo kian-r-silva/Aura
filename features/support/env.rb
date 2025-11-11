@@ -8,6 +8,21 @@
 require 'cucumber/rails'
 require 'omniauth'
 
+# Enable SimpleCov for cucumber runs when requested. This mirrors the RSpec
+# configuration and writes a separate resultset so we can collate results
+# from RSpec + Cucumber later.
+if ENV['CUCUMBER_COVERAGE'] == 'true' || ENV['RAILS_COVERAGE'] == 'true'
+  require 'simplecov'
+  SimpleCov.command_name 'cucumber'
+  SimpleCov.coverage_dir 'coverage'
+  SimpleCov.start 'rails' do
+    enable_coverage :branch
+    add_filter '/features/'
+    add_filter '/spec/'
+    add_filter '/app/controllers/debug_controller.rb'
+  end
+end
+
 # Ensure database_cleaner-active_record is in Gemfile
 require 'database_cleaner/active_record'
 

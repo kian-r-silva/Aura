@@ -33,4 +33,3 @@ production:
     <<: *default
     url: <%= ENV["DATABASE_URL"] %>
     prepared_statements: false
-# heroku restart

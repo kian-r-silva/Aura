@@ -2,9 +2,12 @@
 # It is required only in the test environment.
 if ENV['RAILS_ENV'] == 'test' || ENV['SPEC_COVERAGE'] == 'true'
   require 'simplecov'
+  SimpleCov.command_name 'rspec'
+  SimpleCov.coverage_dir 'coverage'
   SimpleCov.start 'rails' do
     enable_coverage :branch
     add_filter '/spec/'
+    add_filter '/features/'
     add_filter '/app/controllers/debug_controller.rb'
   end
 end

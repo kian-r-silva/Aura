@@ -1,0 +1,34 @@
+namespace :coverage do
+  desc "Run RSpec and Cucumber with coverage and collate results into coverage/"
+  task :all do
+    puts "Running RSpec with coverage..."
+    rspec_ok = system({ 'SPEC_COVERAGE' => 'true', 'RAILS_ENV' => 'test' }, 'bundle exec rspec')
+
+    puts "Running Cucumber with coverage..."
+    cucumber_ok = system({ 'CUCUMBER_COVERAGE' => 'true', 'RAILS_ENV' => 'test' }, 'bundle exec cucumber --format progress')
+
+    # Attempt to collate resultset JSON files produced by SimpleCov
+    begin
+      require 'simplecov'
+      resultsets = Dir.glob(File.join('coverage', '*.resultset.json'))
+      if resultsets.empty?
+        puts "No SimpleCov resultset files found in coverage/. Check that both runs produced coverage files."
+        exit 1 unless rspec_ok && cucumber_ok
+      else
+        puts "Collating SimpleCov resultsets: \n  - #{resultsets.join("\n  - ")}"
+        SimpleCov.collate resultsets, 'rails' do
+          enable_coverage :branch
+          add_filter '/spec/'
+          add_filter '/features/'
+          add_filter '/app/controllers/debug_controller.rb'
+        end
+        puts "Merged coverage report generated at coverage/index.html"
+      end
+    rescue LoadError => e
+      puts "Unable to merge coverage reports: #{e.message}"
+    end
+
+    # Exit with non-zero status if either run failed
+    exit(1) unless rspec_ok && cucumber_ok
+  end
+end

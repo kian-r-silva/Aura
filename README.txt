@@ -84,3 +84,11 @@ tail -f log/development.log
 Run tests & user stories
 bundle exec rspec
 bundle exec cucumber
+
+Run combined coverage report (RSpec + Cucumber)
+--------------------------------------------
+To generate a merged SimpleCov report for both RSpec and Cucumber runs, use the provided rake task:
+
+	bundle exec rake coverage:all
+
+This will run the RSpec suite with coverage enabled, then run Cucumber with coverage enabled, and finally collate the resultsets into a single `coverage/index.html` you can open locally.
