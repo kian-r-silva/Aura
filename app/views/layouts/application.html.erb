@@ -18,7 +18,7 @@
           Signed in as <strong><%= current_user.name %></strong> | 
           <%= link_to "Profile", user_path(current_user) %> |
           <% if current_user.spotify_connected %>
-            <span style="color: #1db954;">● Connected</span> |
+            <span style="color: #1db954;">♫ Spotify Connected</span> |
             <%= button_to "Disconnect Spotify", disconnect_spotify_path, method: :delete, form: { class: "inline-signout", 'data-turbo': 'false' } %> |
           <% else %>
             <% if Rails.env.development? %>
@@ -26,6 +26,12 @@
             <% else %>
               <%= button_to "Connect Spotify", "/auth/spotify", method: :post, form: { 'data-turbo': 'false' } %> |
             <% end %>
+          <% end %>
+          <% if current_user.lastfm_connected %>
+            <span style="color: #d51007;">♫ Last.fm Connected</span> |
+            <%= button_to "Disconnect Last.fm", disconnect_lastfm_path, method: :delete, form: { class: "inline-signout", 'data-turbo': 'false' } %> |
+          <% else %>
+            <%= link_to "Connect Last.fm", lastfm_auth_path %> |
           <% end %>
           <%= button_to "Sign out", session_path, method: :delete, form: { class: "inline-signout" } %>
         <% else %>

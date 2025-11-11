@@ -6,6 +6,10 @@
     <p style="color: #1db954;">♫ Spotify Connected</p>
   <% end %>
   
+  <% if @user.lastfm_connected %>
+    <p style="color: #d51007;">♫ Last.fm Connected</p>
+  <% end %>
+  
   <div class="profile-stats">
     <div class="stat">
       <div class="stat-value"><%= @user.reviews.count %></div>

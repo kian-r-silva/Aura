@@ -59,6 +59,49 @@ class User < ApplicationRecord
     )
   end
 
+  # Called from Last.fm auth callback
+  def connect_lastfm_from_session(session_key, username)
+    ApplicationRecord.transaction do
+      if username.present?
+        User.where(lastfm_username: username).where.not(id: id).update_all(
+          lastfm_username: nil,
+          lastfm_session_key: nil,
+          lastfm_connected: false,
+          updated_at: Time.current
+        )
+
+        self.lastfm_username = username
+      end
+
+      self.lastfm_session_key = session_key
+      self.lastfm_connected = true
+
+      save!(validate: false)
+    end
+  rescue ActiveRecord::RecordNotUnique
+    conflicting = User.find_by(lastfm_username: username)
+    if conflicting && conflicting != self
+      conflicting.update!(
+        lastfm_username: nil,
+        lastfm_session_key: nil,
+        lastfm_connected: false
+      )
+      retry
+    end
+    false
+  rescue StandardError => e
+    Rails.logger.warn("[User#connect_lastfm_from_session] #{e.class}: #{e.message}")
+    false
+  end
+
+  def disconnect_lastfm!
+    update(
+      lastfm_username: nil,
+      lastfm_session_key: nil,
+      lastfm_connected: false
+    )
+  end
+
   # Ensure token is valid; refresh if expired. Returns an access token string or nil.
   def spotify_access_token_with_refresh!
     return spotify_access_token if spotify_access_token.present? && spotify_token_expires_at.present? && spotify_token_expires_at > 30.seconds.from_now
