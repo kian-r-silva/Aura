@@ -3,6 +3,12 @@ Rails.application.routes.draw do
 
   resources :users, only: %i[new create show]
   resource  :session, only: %i[new create destroy]
+  resources :friends, only: %i[index show] do
+    member do
+      post :follow
+      delete :unfollow
+    end
+  end
   resources :albums, only: %i[index show new create] do
     resources :reviews, only: %i[create]
   end

@@ -1,0 +1,61 @@
+<div class="container mt-5">
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+          <h1><%= @user.name %></h1>
+          <p class="text-muted">@<%= @user.username %></p>
+          <div class="mt-2">
+            <span class="badge bg-secondary"><%= @user.reviews.count %> reviews</span>
+            <span class="badge bg-secondary"><%= @user.followers.count %> followers</span>
+            <span class="badge bg-secondary">Following <%= @user.following.count %></span>
+          </div>
+        </div>
+        <div id="follow-btn-<%= @user.id %>">
+          <% if current_user.id != @user.id %>
+            <% if current_user.following?(@user) %>
+              <%= button_to "Following", friend_path(@user), method: :delete, class: "btn btn-outline-secondary", title: "Unfollow" %>
+            <% else %>
+              <%= button_to "Follow", friend_path(@user), method: :post, class: "btn btn-primary", title: "Follow" %>
+            <% end %>
+          <% else %>
+            <p class="text-muted">This is your profile</p>
+          <% end %>
+        </div>
+      </div>
+      <%= link_to "← Back to Find Friends", friends_path, class: "btn btn-outline-secondary mb-4" %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-8">
+      <h3 class="mb-4">Reviews (<%= @reviews.count %>)</h3>
+      
+      <% if @reviews.any? %>
+        <% @reviews.each do |review| %>
+          <div class="card mb-3">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <h5 class="card-title">
+                    <%= link_to review.song.album.name, album_path(review.song.album), class: "text-decoration-none" %>
+                  </h5>
+                  <p class="card-text text-muted small">
+                    By <%= review.song.album.artist_name %>
+                  </p>
+                </div>
+                <span class="badge bg-warning text-dark">⭐ <%= review.rating %>/5</span>
+              </div>
+              <p class="card-text"><%= review.comment %></p>
+              <small class="text-muted"><%= time_ago_in_words(review.created_at) %> ago</small>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="alert alert-info">
+          <%= @user.name %> hasn't written any reviews yet.
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

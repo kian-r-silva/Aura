@@ -2,10 +2,27 @@ class User < ApplicationRecord
   has_secure_password
 
   has_many :reviews, dependent: :destroy
+  has_many :follows_as_follower, class_name: 'Follow', foreign_key: 'follower_id', dependent: :destroy
+  has_many :follows_as_following, class_name: 'Follow', foreign_key: 'following_id', dependent: :destroy
+  has_many :following, through: :follows_as_follower, source: :following
+  has_many :followers, through: :follows_as_following, source: :follower
 
   validates :email, presence: true, uniqueness: true
   validates :name, presence: true
   validates :username, presence: true, uniqueness: true
+
+  # Follow/unfollow helper methods
+  def follow(other_user)
+    following << other_user unless following.include?(other_user)
+  end
+
+  def unfollow(other_user)
+    following.delete(other_user)
+  end
+
+  def following?(other_user)
+    following.include?(other_user)
+  end
 
   # Called from the OmniAuth callback
   def connect_spotify_from_auth(auth)

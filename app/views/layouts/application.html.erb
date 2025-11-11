@@ -17,6 +17,7 @@
         <% if current_user %>
           Signed in as <strong><%= current_user.name %></strong> | 
           <%= link_to "Profile", user_path(current_user) %> |
+          <%= link_to "Find Friends", friends_path %> |
           <% if current_user.spotify_connected %>
             <span style="color: #1db954;">♫ Spotify Connected</span> |
             <%= button_to "Disconnect Spotify", disconnect_spotify_path, method: :delete, form: { class: "inline-signout", 'data-turbo': 'false' } %> |

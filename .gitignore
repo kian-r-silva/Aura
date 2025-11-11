@@ -49,3 +49,4 @@ rerun.txt
 .local.env
 vendor/bundle
 .env.local
+.env.local
