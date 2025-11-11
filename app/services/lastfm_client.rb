@@ -16,27 +16,42 @@ class LastfmClient
     shared_secret = ENV['LASTFM_SHARED_SECRET']
     return nil unless api_key && shared_secret && token
 
+    # Ensure all values are strings for signature calculation
     params = {
+      'api_key' => api_key.to_s,
       'method' => 'auth.getSession',
-      'api_key' => api_key,
-      'token' => token,
+      'token' => token.to_s,
       'format' => 'json'
     }
 
+    # Generate signature from params (excluding api_sig)
     signature = self.generate_signature(params, shared_secret)
     params['api_sig'] = signature
 
     uri = URI(LASTFM_API)
     uri.query = URI.encode_www_form(params)
 
+    Rails.logger.debug("[LastfmClient.get_session] Calling: #{uri.to_s.gsub(/api_sig=[^&]+/, 'api_sig=***')}")
+
     resp = Faraday.get(uri.to_s)
+    
+    Rails.logger.debug("[LastfmClient.get_session] Response status: #{resp.status}")
+    Rails.logger.debug("[LastfmClient.get_session] Response body: #{resp.body}")
+
     return nil unless resp.status == 200
 
     body = JSON.parse(resp.body)
-    return nil if body['error']
+    
+    if body['error']
+      Rails.logger.error("[LastfmClient.get_session] API error: #{body['error']} - #{body['message']}")
+      return nil
+    end
 
     session_data = body.dig('session')
-    return nil unless session_data
+    unless session_data
+      Rails.logger.error("[LastfmClient.get_session] No session data in response: #{body.inspect}")
+      return nil
+    end
 
     {
       session_key: session_data['key'],
@@ -44,6 +59,7 @@ class LastfmClient
     }
   rescue StandardError => e
     Rails.logger.error("[LastfmClient.get_session] #{e.class}: #{e.message}")
+    Rails.logger.error("[LastfmClient.get_session] Backtrace: #{e.backtrace.first(5).join("\n")}")
     nil
   end
 
@@ -146,11 +162,15 @@ class LastfmClient
   end
 
   def self.generate_signature(params, shared_secret)
-    # Order parameters alphabetically and concatenate as namevalue pairs
-    sorted_params = params.sort_by { |k, _v| k.to_s }
-    signature_string = sorted_params.map { |k, v| "#{k}#{v}" }.join
-    signature_string += shared_secret
+    # Exclude non-signed params per Last.fm spec
+    filtered = params.reject { |k, _| %w[api_sig format callback].include?(k.to_s) }
+    # Order parameters alphabetically and concatenate as <name><value> pairs
+    sorted_params = filtered.sort_by { |k, _v| k.to_s }
+    signature_string = sorted_params.map { |k, v| "#{k}#{v.to_s}" }.join
+    signature_string += shared_secret.to_s
 
+    Rails.logger.debug("[LastfmClient.generate_signature] Params (signed): #{sorted_params.inspect}")
+    Rails.logger.debug("[LastfmClient.generate_signature] String before hash: #{signature_string.gsub(shared_secret.to_s, '***SECRET***')}")
     Digest::MD5.hexdigest(signature_string)
   end
 

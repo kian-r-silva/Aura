@@ -11,7 +11,7 @@ class LastfmAuthController < ApplicationController
     end
 
     auth_url = "http://www.last.fm/api/auth/?api_key=#{api_key}&cb=#{CGI.escape(callback_url)}"
-    redirect_to auth_url
+    redirect_to auth_url, allow_other_host: true
   end
 
   def callback
@@ -22,17 +22,20 @@ class LastfmAuthController < ApplicationController
       return redirect_to root_path, alert: 'Last.fm auth failed: no token received'
     end
 
+    Rails.logger.info "[LastfmAuth] Received token: #{token[0..10]}..." if token
+
     session_data = LastfmClient.get_session(token)
 
     unless session_data
-      Rails.logger.warn "[LastfmAuth] failed to get session for token"
-      return redirect_to root_path, alert: 'Last.fm auth failed: could not get session'
+      Rails.logger.warn "[LastfmAuth] failed to get session for token. Check logs for details."
+      return redirect_to root_path, alert: 'Last.fm auth failed: could not get session. Check server logs for details.'
     end
 
     current_user.connect_lastfm_from_session(session_data[:session_key], session_data[:username])
     redirect_to root_path, notice: 'Last.fm account connected'
   rescue => e
     Rails.logger.error("[LastfmAuth#callback] #{e.class}: #{e.message}")
+    Rails.logger.error("[LastfmAuth#callback] Backtrace: #{e.backtrace.first(10).join("\n")}")
     redirect_to root_path, alert: 'Last.fm auth failed'
   end
 
