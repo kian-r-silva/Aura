@@ -33,13 +33,11 @@ class ReviewsController < ApplicationController
       end
     end
 
-    review = song.reviews.build(review_params)
+  review = song.reviews.build(review_params)
 
-    # ensure rating is integer
-    review.rating = review.rating.to_i if review.rating.present?
-
-    # if current_user isn't set in the test environment, fall back to any existing user
-    review.user = current_user || User.first || User.create!(name: "Test User", email: "test@example.com")
+  review.rating = review.rating.to_i if review.rating.present?
+  
+  review.user = current_user
 
     if review.save
       # Redirect to the song show page (create a songs#show view)

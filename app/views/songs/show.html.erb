@@ -4,6 +4,9 @@
   <% if @song.album.present? %>
     <p><strong>Album:</strong> <%= @song.album %></p>
   <% end %>
+  <% if @song.reviews.any? %>
+    <p><strong>Average Rating:</strong> <%= @song.average_rating %> / 5</p>
+  <% end %>
 </div>
 
 <h2>Reviews</h2>

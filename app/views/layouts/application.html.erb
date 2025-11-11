@@ -16,7 +16,6 @@
       <div class="nav-user-info">
         <% if current_user %>
           Signed in as <strong><%= current_user.name %></strong> | 
-          <%= link_to "Albums", albums_path %> |
           <%= link_to "Profile", user_path(current_user) %> |
           <% if current_user.spotify_connected %>
             <span style="color: #1db954;">● Connected</span> |
