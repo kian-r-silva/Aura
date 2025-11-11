@@ -15,8 +15,22 @@
       <p>Pick a few of the tracks you listened to recently and add your thoughts.</p>
       <%= link_to "Review recently played", spotify_recent_path, class: "btn btn-primary" %>
     </div>
+  <% end %>
 
-    
+  <% if current_user && current_user.lastfm_connected? %>
+    <div class="lastfm-search" style="margin-bottom:18px;">
+      <%= form_with url: lastfm_search_path, method: :get, local: true do |f| %>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <%= f.text_field :q, placeholder: 'Search Last.fm — song or artist', value: params[:q], size: 40, class: 'input' %>
+          <%= f.submit 'Search & Review', class: 'btn btn-primary' %>
+        </div>
+      <% end %>
+    </div>
+    <div class="cta-recent" style="padding:12px; margin-bottom:16px;">
+      <h3>Review songs you recently scrobbled</h3>
+      <p>Pick a few of the tracks you listened to recently and add your thoughts.</p>
+      <%= link_to "Review recently played", lastfm_recent_path, class: "btn btn-primary" %>
+    </div>
   <% end %>
 
   <div class="manual-search" style="margin-top:18px;">
