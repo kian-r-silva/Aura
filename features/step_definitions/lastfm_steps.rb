@@ -10,13 +10,15 @@ Given(/^I connect my Last\.fm account$/) do
 end
 
 Given(/^Last\.fm returns recent tracks including "([^"]*)"$/) do |artist_name|
-  allow_any_instance_of(LastfmClient).to receive(:recent_tracks).and_return([
-    { name: 'Karma Police', artists: artist_name, album: '', image: nil }
-  ])
-  # Also stub track_similar to avoid external calls during profile rendering
-  allow_any_instance_of(LastfmClient).to receive(:track_similar).and_return([
-    { name: 'Paranoid Android', artist: artist_name, url: 'http://last.fm/p1' }
-  ])
+  LastfmClient.class_eval do
+    define_method(:recent_tracks) do |**args|
+      [ { name: 'Karma Police', artists: artist_name, album: '', image: nil } ]
+    end
+
+    define_method(:track_similar) do |artist, track, limit: 10|
+      [ { name: 'Paranoid Android', artist: artist_name, url: 'http://last.fm/p1' } ]
+    end
+  end
 end
 
 When(/^I search Last\.fm for "([^"]*)"$/) do |query|
