@@ -10,7 +10,7 @@ RSpec.describe UsersController, type: :controller do
           post :create, params: { user: { name: 'Test', username: 'test1', email: 't@example.com', password: 'password', password_confirmation: 'password' } }
         }.to change(User, :count).by(1)
 
-        expect(response).to redirect_to(root_path)
+        expect(response).to redirect_to(songs_path)
       end
     end
 
