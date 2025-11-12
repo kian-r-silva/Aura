@@ -10,23 +10,23 @@
  */
 
 :root {
-  --bg-primary: #0a0a0a;
-  --bg-secondary: #141414;
-  --bg-tertiary: #1a1a1a;
-  --bg-card: #1e1e1e;
-  --bg-hover: #282828;
-  --accent-primary: #6b46c1;  
-  --accent-secondary: #805ad5;
-  --accent-tertiary: #9d7ae8;
-  --accent-danger: #e22134;
-  --accent-success: #1db954;
-  --text-primary: #ffffff;
-  --text-secondary: #b3b3b3;
-  --text-muted: #6a6a6a;
-  --border-color: #282828;
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
+  --bg-primary: #f5f3f0;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #fafaf8;
+  --bg-card: #ffffff;
+  --bg-hover: #f0ede8;
+  --accent-primary: #7c9885;
+  --accent-secondary: #6a8a75;
+  --accent-tertiary: #8ba896;
+  --accent-danger: #d97757;
+  --accent-success: #7c9885;
+  --text-primary: #2d3436;
+  --text-secondary: #636e72;
+  --text-muted: #95a5a6;
+  --border-color: #e8e5e0;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
   --spacing-xs: 0.5rem;
   --spacing-sm: 1rem;
   --spacing-md: 1.5rem;
@@ -65,7 +65,7 @@ body {
 .header-enhanced {
   background: var(--bg-secondary);
   padding: var(--spacing-md) var(--spacing-lg);
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 2px solid var(--border-color);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -144,6 +144,7 @@ body {
   padding: 0.5rem 1rem;
   background: var(--bg-tertiary);
   border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color);
 }
 
 .user-name {
@@ -184,6 +185,7 @@ input[type="submit"],
   font-family: var(--font-primary);
   display: inline-block;
   text-decoration: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 button:hover,
@@ -191,7 +193,7 @@ input[type="submit"]:hover,
 .btn:hover {
   background: var(--accent-secondary);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(107, 70, 193, 0.3);
+  box-shadow: 0 4px 12px rgba(124, 152, 133, 0.25);
   color: white;
 }
 
@@ -225,6 +227,7 @@ input[type="submit"]:active,
   background: transparent;
   color: var(--text-secondary);
   padding: 0.5rem 1rem;
+  box-shadow: none;
 }
 
 .btn-ghost:hover {
@@ -274,14 +277,14 @@ input[type="submit"]:active,
 
 .flash-message.notice,
 .flash-message.success {
-  background: rgba(29, 185, 84, 0.1);
+  background: rgba(124, 152, 133, 0.1);
   border: 1px solid var(--accent-success);
-  color: var(--accent-success);
+  color: var(--accent-secondary);
 }
 
 .flash-message.alert,
 .flash-message.error {
-  background: rgba(226, 33, 52, 0.1);
+  background: rgba(217, 119, 87, 0.1);
   border: 1px solid var(--accent-danger);
   color: var(--accent-danger);
 }
@@ -312,7 +315,7 @@ input[type="submit"]:active,
 }
 
 .cta-card p {
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.95);
   font-size: var(--font-size-lg);
   margin-bottom: var(--spacing-lg);
 }
@@ -335,6 +338,7 @@ input[type="submit"]:active,
   border-radius: var(--border-radius-lg);
   margin-bottom: var(--spacing-lg);
   border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
 }
 
 .section-description {
@@ -364,7 +368,8 @@ input[type="submit"]:active,
 .search-input:focus {
   outline: none;
   border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(107, 70, 193, 0.1);
+  box-shadow: 0 0 0 3px rgba(124, 152, 133, 0.15);
+  background: white;
 }
 
 .manual-search-form {
@@ -394,6 +399,7 @@ input[type="submit"]:active,
   background: var(--bg-hover);
   border-color: var(--accent-primary);
   transform: translateX(4px);
+  box-shadow: var(--shadow-sm);
 }
 
 .recommendation-info {
@@ -443,10 +449,7 @@ input[type="submit"]:active,
 .welcome-card h1 {
   font-size: var(--font-size-3xl);
   margin-bottom: var(--spacing-sm);
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--accent-primary);
 }
 
 .welcome-card h2 {
@@ -482,6 +485,13 @@ input[type="submit"]:active,
   background: var(--bg-card);
   border-radius: var(--border-radius-lg);
   border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+}
+
+.feature:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 .feature-icon {
@@ -534,7 +544,7 @@ input[type="submit"]:active,
 .lastfm-badge {
   display: inline-block;
   padding: 0.375rem 0.875rem;
-  background: rgba(213, 16, 7, 0.1);
+  background: rgba(217, 119, 87, 0.1);
   border: 1px solid var(--accent-danger);
   border-radius: var(--border-radius-md);
   font-size: var(--font-size-sm);
@@ -562,6 +572,7 @@ input[type="submit"]:active,
   transform: translateY(-2px);
   box-shadow: var(--shadow-sm);
   border-color: var(--accent-primary);
+  background: white;
 }
 
 .stat-value {
@@ -608,11 +619,13 @@ input[type="submit"]:active,
   border-radius: var(--border-radius-lg);
   border: 1px solid var(--border-color);
   transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
 }
 
 .review-card:hover {
   border-color: var(--accent-primary);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
 .review-header-new {
@@ -673,6 +686,7 @@ input[type="submit"]:active,
 .empty-icon {
   font-size: 3rem;
   margin-bottom: var(--spacing-md);
+  opacity: 0.5;
 }
 
 .empty-state-enhanced h3 {
@@ -729,7 +743,8 @@ textarea:focus,
 select:focus {
   outline: none;
   border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(107, 70, 193, 0.1);
+  box-shadow: 0 0 0 3px rgba(124, 152, 133, 0.15);
+  background: white;
 }
 
 textarea {
@@ -797,6 +812,7 @@ ul li:hover {
   background: var(--bg-hover);
   border-color: var(--accent-primary);
   transform: translateX(4px);
+  box-shadow: var(--shadow-sm);
 }
 
 ul li a {
@@ -828,7 +844,7 @@ ul li a {
 }
 
 #error_explanation {
-  background: rgba(226, 33, 52, 0.1);
+  background: rgba(217, 119, 87, 0.1);
   border: 1px solid var(--accent-danger);
   border-radius: var(--border-radius-md);
   padding: var(--spacing-md);
