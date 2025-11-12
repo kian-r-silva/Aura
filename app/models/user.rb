@@ -2,6 +2,7 @@ class User < ApplicationRecord
   has_secure_password
 
   has_many :reviews, dependent: :destroy
+  has_many :playlists, dependent: :destroy
   has_many :follows_as_follower, class_name: 'Follow', foreign_key: 'follower_id', dependent: :destroy
   has_many :follows_as_following, class_name: 'Follow', foreign_key: 'following_id', dependent: :destroy
   has_many :following, through: :follows_as_follower, source: :following

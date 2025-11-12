@@ -1,0 +1,49 @@
+<h1><%= @playlist.title %></h1>
+<p><%= @playlist.description %></p>
+
+<p>
+  <%= link_to 'Publish to Last.fm', publish_to_lastfm_playlist_path(@playlist), method: :post, class: 'btn btn-primary' %>
+  <%= button_tag 'Add', type: 'button', id: 'open-lastfm-search', class: 'btn btn-secondary', data: { action: 'click->lastfm#toggle' } %>
+</p>
+
+<!-- Hidden Last.fm search bar (reuses the same simple search used on the songs index) -->
+<div id="lastfm-search-for-playlist" style="display:none; margin-top:12px;">
+  <% if current_user && current_user.lastfm_connected? %>
+    <div class="lastfm-search" style="margin-bottom:18px;">
+      <%= form_with url: lastfm_search_path, method: :get, local: true do |f| %>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <%= f.text_field :q, placeholder: 'Search Last.fm — song or artist', value: params[:q], size: 40, class: 'input' %>
+          <%= f.hidden_field :playlist_id, value: @playlist.id %>
+          <%= f.submit 'Search & Add', class: 'btn btn-primary' %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p><%= link_to 'Connect Last.fm', connect_lastfm_path, class: 'btn btn-primary' %> to search and add tracks from Last.fm.</p>
+  <% end %>
+</div>
+
+<script>
+  // Minimal Stimulus-free toggle in case Stimulus controller isn't present.
+  document.addEventListener('DOMContentLoaded', function() {
+    var btn = document.getElementById('open-lastfm-search');
+    var box = document.getElementById('lastfm-search-for-playlist');
+    if (!btn || !box) return;
+    btn.addEventListener('click', function() {
+      if (box.style.display === 'none' || box.style.display === '') {
+        box.style.display = 'block';
+        btn.textContent = 'Close';
+      } else {
+        box.style.display = 'none';
+        btn.textContent = 'Add';
+      }
+    });
+  });
+</script>
+
+<h3>Songs</h3>
+<ol>
+  <% @playlist.songs.each do |s| %>
+    <li><%= link_to s.title, song_path(s) %> — <%= s.artist %></li>
+  <% end %>
+</ol>

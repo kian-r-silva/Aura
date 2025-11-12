@@ -18,6 +18,16 @@ Rails.application.routes.draw do
 
   resources :songs, only: %i[index show]
 
+  resources :playlists do
+    member do
+      post :publish_to_lastfm
+      post :add_lastfm_track
+    end
+    collection do
+      get :from_top_rated
+    end
+  end
+
   # MusicBrainz JSON search endpoint used by the manual review autocomplete
   get '/musicbrainz/search', to: 'musicbrainz#search', defaults: { format: :json }
 
