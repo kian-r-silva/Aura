@@ -12,11 +12,11 @@
       <div class="stat-label">Reviews</div>
     </div>
     <div class="stat">
-      <div class="stat-value"><%= @user.followers.count %></div>
+      <div class="stat-value"><%= link_to @user.followers.count, followers_friend_path(@user) %></div>
       <div class="stat-label">Followers</div>
     </div>
     <div class="stat">
-      <div class="stat-value"><%= @user.following.count %></div>
+      <div class="stat-value"><%= link_to @user.following.count, following_friend_path(@user) %></div>
       <div class="stat-label">Following</div>
     </div>
     <div class="stat">
