@@ -42,7 +42,7 @@
                   <% friend_reviews.each do |review| %>
                     <div class="mb-2 pb-2 border-bottom">
                       <div class="d-flex justify-content-between">
-                        <span class="small"><strong><%= review.song.album.name %></strong></span>
+                        <span class="small"><strong><%= review.song.album.presence || '—' %></strong></span>
                         <span class="small">⭐ <%= review.rating %>/5</span>
                       </div>
                       <p class="small text-muted mb-0"><%= truncate(review.comment, length: 80) %></p>
