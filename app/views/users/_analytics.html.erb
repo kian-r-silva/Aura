@@ -45,10 +45,7 @@
         <ol>
           <% personal.each do |s| %>
             <% avg = (s.respond_to?(:avg_rating) && s.avg_rating) || s.average_rating %>
-            <li style="display:flex;align-items:center;gap:8px;">
-              <div style="flex:1"><%= link_to s.title, song_path(s) %> — <%= s.artist %> (<%= avg || '—' %>)</div>
-              <div><%= link_to 'Review', new_review_path(song_id: s.id), class: 'btn btn-sm' %></div>
-            </li>
+            <li><%= link_to s.title, song_path(s) %> — <%= s.artist %> (<%= avg || '—' %>)</li>
           <% end %>
         </ol>
       <% else %>
