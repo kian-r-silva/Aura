@@ -10,35 +10,51 @@
   </head>
 
   <body>
-    <header>
-      <h1><%= link_to "♫ Aura", root_path %></h1>
-      
-      <div class="nav-user-info">
-        <% if current_user %>
-          Signed in as <strong><%= current_user.name %></strong> | 
-          <%= link_to "Profile", user_path(current_user) %> |
-          <%= link_to "Find Friends", friends_path %> |
-          <% if current_user.lastfm_connected %>
-            <span style="color: #d51007;">♫ Last.fm Connected</span> |
-            <%= button_to "Disconnect Last.fm", disconnect_lastfm_path, method: :delete, form: { class: "inline-signout", 'data-turbo': 'false' } %> |
-          <% else %>
-            <%= link_to "Connect Last.fm", lastfm_auth_path %> |
-          <% end %>
-          <%= button_to "Sign out", session_path, method: :delete, form: { class: "inline-signout" } %>
-        <% else %>
-          <%= link_to "Sign in", new_session_path %> |
-          <%= link_to "Sign up", new_user_path %>
-        <% end %>
+    <header class="header-enhanced">
+      <div class="header-brand">
+        <h1><%= link_to "♫ Aura", root_path %></h1>
+        <span class="tagline">Where Music Taste Comes to Life</span>
       </div>
+      
+      <nav class="header-nav">
+        <% if current_user %>
+          <div class="nav-links">
+            <%= link_to "Discover", root_path, class: "nav-link" %>
+            <%= link_to "Find Friends", friends_path, class: "nav-link" %>
+            <%= link_to "Profile", user_path(current_user), class: "nav-link" %>
+          </div>
+          
+          <div class="user-menu">
+            <div class="user-info">
+              <span class="user-name"><%= current_user.name %></span>
+              <% if current_user.lastfm_connected %>
+                <span class="lastfm-indicator" title="Last.fm Connected">♫</span>
+              <% end %>
+            </div>
+            <%= button_to "Sign Out", session_path, method: :delete, class: "btn btn-ghost", form: { class: "inline-form" } %>
+          </div>
+        <% else %>
+          <div class="auth-links">
+            <%= link_to "Sign In", new_session_path, class: "nav-link" %>
+            <%= link_to "Sign Up", new_user_path, class: "btn btn-primary btn-sm" %>
+          </div>
+        <% end %>
+      </nav>
     </header>
 
     <% flash.each do |k,v| %>
-      <div class="flash <%= k %>"><%= v %></div>
+      <div class="flash-message <%= k %>">
+        <span class="flash-text"><%= v %></span>
+      </div>
     <% end %>
 
-    <main>
+    <main class="main-content">
       <%= yield %>
     </main>
+
+    <footer class="app-footer">
+      <p>&copy; 2025 Aura. Where Music Taste Comes to Life.</p>
+    </footer>
 
   </body>
 </html>
