@@ -1,77 +1,63 @@
-<div class="profile-container">
-  <div class="profile-header-enhanced">
-    <div class="profile-info">
-      <h1 class="profile-name"><%= @user.name %></h1>
-      <p class="profile-username">@<%= @user.username %></p>
-      
-      <% if @user.lastfm_connected %>
-        <div class="lastfm-badge">
-          <span>♫ Last.fm Connected</span>
-        </div>
-      <% end %>
+<div class="profile-header">
+  <h1 class="profile-name"><%= @user.name %></h1>
+  <p class="profile-username">@<%= @user.username %></p>
+  
+  <% if @user.lastfm_connected %>
+    <p style="color: #d51007;">♫ Last.fm Connected</p>
+  <% end %>
+  
+  <div class="profile-stats">
+    <div class="stat">
+      <div class="stat-value"><%= @user.reviews.count %></div>
+      <div class="stat-label">Reviews</div>
     </div>
-    
-    <div class="profile-stats-grid">
-      <div class="stat-card">
-        <div class="stat-value"><%= @user.reviews.count %></div>
-        <div class="stat-label">Reviews</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value"><%= @user.reviews.average(:rating)&.round(1) || 0 %></div>
-        <div class="stat-label">Avg Rating</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value"><%= @user.followers.count %></div>
-        <div class="stat-label">Followers</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value"><%= @user.following.count %></div>
-        <div class="stat-label">Following</div>
-      </div>
+    <div class="stat">
+      <div class="stat-value"><%= @user.followers.count %></div>
+      <div class="stat-label">Followers</div>
     </div>
-  </div>
-
-  <%= render 'analytics' %>
-
-  <div class="reviews-section">
-    <div class="section-header">
-      <h2>Recent Reviews</h2>
-      <p class="section-subtitle">All reviews by <%= @user.name %>, sorted alphabetically</p>
+    <div class="stat">
+      <div class="stat-value"><%= @user.following.count %></div>
+      <div class="stat-label">Following</div>
     </div>
-
-    <% if @user.reviews.any? %>
-      <div class="reviews-grid">
-        <% @user.reviews.joins(:song).order(Arel.sql("songs.title ASC, songs.artist ASC, COALESCE(songs.album, '') ASC")).each do |review| %>
-          <div class="review-card">
-            <div class="review-header-new">
-              <div class="review-song-info">
-                <h4 class="song-title-review">
-                  <%= link_to review.song.title, song_path(review.song) %>
-                </h4>
-                <p class="song-metadata">
-                  <%= review.song.artist %>
-                  <% if review.song.album.present? %>
-                    <span class="album-name">• <%= review.song.album %></span>
-                  <% end %>
-                </p>
-              </div>
-              <div class="review-rating-badge">
-                <%= review.rating %> ★
-              </div>
-            </div>
-            <p class="review-comment-text"><%= review.comment %></p>
-          </div>
-        <% end %>
-      </div>
-    <% else %>
-      <div class="empty-state-enhanced">
-        <div class="empty-icon">🎵</div>
-        <h3>No Reviews Yet</h3>
-        <p><%= @user.name %> hasn't reviewed any songs yet.</p>
-        <% if current_user == @user %>
-          <%= link_to "Start Reviewing", root_path, class: "btn btn-primary" %>
-        <% end %>
-      </div>
-    <% end %>
+    <div class="stat">
+      <div class="stat-value"><%= @user.reviews.average(:rating)&.round(1) || 0 %></div>
+      <div class="stat-label">Avg Rating</div>
+    </div>
   </div>
 </div>
+
+<%= render 'analytics' %>
+
+<div id="follow-btn-<%= @user.id %>">
+  <% if defined?(current_user) && current_user && current_user.id != @user.id %>
+    <% if current_user.following?(@user) %>
+      <%= button_to "Following", unfollow_friend_path(@user), method: :delete, class: "btn btn-outline-secondary", title: "Unfollow" %>
+    <% else %>
+      <%= button_to "Follow", follow_friend_path(@user), method: :post, class: "btn btn-primary", title: "Follow" %>
+    <% end %>
+  <% end %>
+</div>
+
+
+<h2>Recent Reviews</h2>
+
+<% if @user.reviews.any? %>
+  <%# Order reviews by song title, artist, album as requested %>
+  <% @user.reviews.joins(:song).order(Arel.sql("songs.title ASC, songs.artist ASC, COALESCE(songs.album, '') ASC")).each do |review| %>
+    <div class="review">
+      <div class="review-header">
+        <span class="review-user">
+          <%= link_to review.song.title, song_path(review.song) %> — <%= review.song.artist %> <%= review.song.album.present? ? "— #{review.song.album}" : '' %>
+        </span>
+        <span class="review-rating"><%= review.rating %></span>
+      </div>
+      <p class="review-comment"><%= review.comment %></p>
+    </div>
+  <% end %>
+<% else %>
+  <div class="empty-state">
+    <p>No reviews yet</p>
+    <p class="text-muted"><%= @user.name %> hasn't reviewed any songs yet.</p>
+  </div>
+<% end %>
+
