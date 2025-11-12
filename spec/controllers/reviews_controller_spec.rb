@@ -1,6 +1,37 @@
 require 'rails_helper'
 
 RSpec.describe ReviewsController, type: :controller do
+  describe 'POST #musicbrainz_create' do
+    let(:user) { User.create!(email: 'rb@example.com', name: 'RB', username: 'rb1', password: 'password') }
+
+    before do
+      allow(controller).to receive(:current_user).and_return(user)
+    end
+
+    it 'creates a song and review and returns json success' do
+      post :musicbrainz_create, params: { track_name: 'Test Song', artists: 'The Band', album_title: 'Best Of', rating: 5, comment: 'Really liked this track' * 2 }, as: :json
+
+      expect(response.content_type).to include('application/json')
+      json = JSON.parse(response.body)
+      expect(json['success']).to be true
+
+      song = Song.find_by(title: 'Test Song', artist: 'The Band')
+      expect(song).not_to be_nil
+      expect(song.reviews.count).to eq 1
+    end
+
+    it 'returns unauthorized when no current_user' do
+      allow(controller).to receive(:current_user).and_return(nil)
+      post :musicbrainz_create, params: { track_name: 'X', artists: 'Y', album_title: 'Z' }, as: :json
+      expect(response).to have_http_status(:unauthorized)
+      json = JSON.parse(response.body)
+      expect(json['success']).to be false
+    end
+  end
+end
+require 'rails_helper'
+
+RSpec.describe ReviewsController, type: :controller do
   render_views
 
   let(:user) { create(:user) }

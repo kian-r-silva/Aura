@@ -38,10 +38,10 @@
               <div class="d-flex justify-content-between align-items-start mb-2">
                 <div>
                   <h5 class="card-title">
-                    <%= link_to review.song.album.name, album_path(review.song.album), class: "text-decoration-none" %>
+                    <%= link_to review.song.title, song_path(review.song), class: "text-decoration-none" %>
                   </h5>
                   <p class="card-text text-muted small">
-                    By <%= review.song.album.artist_name %>
+                    <%= review.song.artist %> <%= review.song.album.present? ? "— #{h(review.song.album)}" : '' %>
                   </p>
                 </div>
                 <span class="badge bg-warning text-dark">⭐ <%= review.rating %>/5</span>

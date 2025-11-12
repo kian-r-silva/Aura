@@ -229,7 +229,7 @@ export default class extends Controller {
         })
         const json = await resp.json()
         if (resp.ok && json.success) {
-          window.location.href = json.redirect || (json.album_id ? `/albums/${json.album_id}` : window.location.href)
+            window.location.href = json.redirect || (json.song_id ? `/songs/${json.song_id}` : window.location.href)
         } else {
           alert('Unable to create review: ' + (json.errors ? json.errors.join(', ') : json.error || 'unknown'))
           create.disabled = false
