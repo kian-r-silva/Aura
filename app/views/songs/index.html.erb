@@ -1,78 +1,131 @@
 <% if current_user %>
 
   <% if current_user && current_user.lastfm_connected? %>
-    <div class="lastfm-search" style="margin-bottom:18px;">
+    <!-- Call to Action Section -->
+    <div class="cta-section">
+      <div class="cta-card primary-cta">
+        <h2>🎵 Review Your Recently Played Songs</h2>
+        <p>Pick a few tracks you recently listened to and share your thoughts with the community.</p>
+        <%= link_to "Review Recently Played →", lastfm_recent_path, class: "btn btn-cta" %>
+      </div>
+    </div>
+
+    <div class="search-section">
+      <h3>Search Last.fm</h3>
+      <p class="section-description">Find any song or artist and write a review</p>
       <%= form_with url: lastfm_search_path, method: :get, local: true do |f| %>
-        <div style="display:flex; gap:8px; align-items:center;">
-          <%= f.text_field :q, placeholder: 'Search Last.fm — song or artist', value: params[:q], size: 40, class: 'input' %>
-          <%= f.submit 'Search & Review', class: 'btn btn-primary' %>
+        <div class="search-form-group">
+          <%= f.text_field :q, placeholder: 'Search by song title or artist name...', value: params[:q], class: 'search-input' %>
+          <%= f.submit 'Search & Review', class: 'btn btn-secondary' %>
         </div>
       <% end %>
     </div>
-    <div class="cta-recent" style="padding:12px; margin-bottom:16px;">
-      <h3>Review songs you recently scrobbled</h3>
-      <p>Pick a few of the tracks you listened to recently and add your thoughts.</p>
-      <%= link_to "Review recently played", lastfm_recent_path, class: "btn btn-primary" %>
-    </div>
   <% end %>
 
-<div class="recommendations" style="margin-top:24px;">
-    <h3>Recommendations for you</h3>
-    <p>Based on your listening, we think you might enjoy these. Give these a listen and drop a review!</p>
+  <div class="recommendations-section">
+    <h3>Recommended For You</h3>
+    <p class="section-description">Based on your listening history, we think you'll enjoy these tracks</p>
     <% if @recommendations.present? %>
-      <ol>
+      <div class="recommendations-list">
         <% @recommendations.each do |item| %>
           <% if item.is_a?(Song) || item.respond_to?(:title) %>
             <% s = item %>
             <% avg = (s.respond_to?(:avg_rating) && s.avg_rating) || s.average_rating %>
-            <li style="display:flex;align-items:center;gap:8px;">
-              <div style="flex:1"><%= link_to s.title, song_path(s) %> — <%= s.artist %> (<%= avg || '—' %>)</div>
-              <div>
-                <%= link_to 'Review', new_review_path(song_id: s.id), class: 'btn btn-sm' %>
-              </div>
-            </li>
-          <% elsif item.is_a?(Hash) && item[:name].present? %>
-            <li style="display:flex;align-items:center;gap:8px;">
-              <div style="flex:1">
-                <% if item[:url].present? %>
-                  <a href="<%= item[:url] %>" target="_blank" rel="noopener noreferrer"><%= item[:name] %></a>
-                <% else %>
-                  <%= item[:name] %>
+            <div class="recommendation-item">
+              <div class="recommendation-info">
+                <div class="song-title"><%= link_to s.title, song_path(s) %></div>
+                <div class="song-artist"><%= s.artist %></div>
+                <% if avg %>
+                  <div class="song-rating">★ <%= avg %></div>
                 <% end %>
-                 — <%= item[:artist] %>
               </div>
-              <div>
-                <%= link_to 'Review', new_review_path(track_name: item[:name], artists: item[:artist], album_title: nil), class: 'btn btn-sm' %>
+              <div class="recommendation-action">
+                <%= link_to 'Review', new_review_path(song_id: s.id), class: 'btn btn-compact' %>
               </div>
-            </li>
+            </div>
+          <% elsif item.is_a?(Hash) && item[:name].present? %>
+            <div class="recommendation-item">
+              <div class="recommendation-info">
+                <div class="song-title">
+                  <% if item[:url].present? %>
+                    <a href="<%= item[:url] %>" target="_blank" rel="noopener noreferrer"><%= item[:name] %></a>
+                  <% else %>
+                    <%= item[:name] %>
+                  <% end %>
+                </div>
+                <div class="song-artist"><%= item[:artist] %></div>
+              </div>
+              <div class="recommendation-action">
+                <%= link_to 'Review', new_review_path(track_name: item[:name], artists: item[:artist], album_title: nil), class: 'btn btn-compact' %>
+              </div>
+            </div>
           <% end %>
         <% end %>
-      </ol>
+      </div>
     <% else %>
-      <p>No recommendations yet. Connect Last.fm or review songs to get suggestions.</p>
+      <div class="empty-recommendations">
+        <p>No recommendations yet. Connect Last.fm or review songs to get personalized suggestions.</p>
+      </div>
     <% end %>
   </div>
 
-  <div class="manual-search" style="margin-top:18px;">
-    <h3>Add a song manually</h3>
-    <p>If you do not have Spotify connected, search MusicBrainz and add a review manually.</p>
+  <div class="manual-search-section">
+    <h3>Add a Song Manually</h3>
+    <p class="section-description">Search MusicBrainz database and add a review for any song</p>
     <div data-controller="musicbrainz-autocomplete">
-      <div style="display:flex;gap:8px;align-items:center;">
-   <input aria-label="Song title" placeholder="Song title" data-musicbrainz-autocomplete-target="titleInput"
-     data-action="keydown->musicbrainz-autocomplete#search" />
-   <input aria-label="Artist" placeholder="Artist" data-musicbrainz-autocomplete-target="artistInput"
-     data-action="keydown->musicbrainz-autocomplete#search" />
-   <button type="button" class="btn btn-secondary" data-action="click->musicbrainz-autocomplete#search">Search</button>
+      <div class="manual-search-form">
+        <input 
+          aria-label="Song title" 
+          placeholder="Enter song title" 
+          data-musicbrainz-autocomplete-target="titleInput"
+          data-action="keydown->musicbrainz-autocomplete#search" 
+          class="search-input" />
+        <input 
+          aria-label="Artist" 
+          placeholder="Enter artist name" 
+          data-musicbrainz-autocomplete-target="artistInput"
+          data-action="keydown->musicbrainz-autocomplete#search" 
+          class="search-input" />
+        <button 
+          type="button" 
+          class="btn btn-secondary" 
+          data-action="click->musicbrainz-autocomplete#search">
+          Search
+        </button>
       </div>
-      <ul data-musicbrainz-autocomplete-target="list" style="margin-top:0.5rem"></ul>
+      <ul data-musicbrainz-autocomplete-target="list" class="autocomplete-results"></ul>
     </div>
-
   </div>
 
 <% else %>
-  <div class="text-center">
-    <h2>Welcome to Aura</h2>
-    <p>Where Music Taste Comes to Life</p>
-    <p>You must <%= link_to "sign in", new_session_path %> or <%= link_to "sign up", new_user_path %> to review and search songs.</p>
+  <div class="welcome-section">
+    <div class="welcome-card">
+      <h1>♫ Welcome to Aura</h1>
+      <h2>Where Music Taste Comes to Life</h2>
+      <p class="welcome-description">
+        Join our community of music lovers. Share your reviews, discover new tracks, and connect with people who share your taste in music.
+      </p>
+      <div class="welcome-actions">
+        <%= link_to "Sign Up", new_user_path, class: "btn btn-primary" %>
+        <%= link_to "Sign In", new_session_path, class: "btn btn-secondary" %>
+      </div>
+      <div class="welcome-features">
+        <div class="feature">
+          <div class="feature-icon">🎵</div>
+          <h4>Review Music</h4>
+          <p>Share your thoughts on your favorite tracks</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🔍</div>
+          <h4>Discover New Songs</h4>
+          <p>Get personalized recommendations</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">👥</div>
+          <h4>Connect with Friends</h4>
+          <p>Follow other music enthusiasts</p>
+        </div>
+      </div>
+    </div>
   </div>
 <% end %>
