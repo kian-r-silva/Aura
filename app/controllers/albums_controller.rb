@@ -1,24 +1,22 @@
 class AlbumsController < ApplicationController
   def index
-    @albums = Album.all.order(:title)
+    # Albums are deprecated — redirect to songs index which is now the main landing page
+    redirect_to songs_path
   end
 
   def show
-    @album = Album.find(params[:id])
-    @review = Review.new
+    # Albums are deprecated — redirect to songs index
+    redirect_to songs_path
   end
 
   def new
-    @album = Album.new
+    # Albums are deprecated — redirect to songs index
+    redirect_to songs_path
   end
 
   def create
-    @album = Album.new(album_params)
-    if @album.save
-      redirect_to @album, notice: "Album created"
-    else
-      render :new, status: :unprocessable_entity
-    end
+    # Albums are deprecated — accept request but redirect to songs index
+    redirect_to songs_path, notice: "Albums are deprecated. You can add reviews for songs instead."
   end
 
   private

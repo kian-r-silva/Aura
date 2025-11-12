@@ -1,31 +1,6 @@
-<h2>Add a New Album</h2>
-<p class="text-muted">Share an album you've been listening to</p>
+<h2>Albums are deprecated</h2>
 
-<%= form_with model: @album, local: true do |f| %>
-  <% if @album.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@album.errors.count, "error") %> prohibited this album from being saved:</h2>
-      <ul>
-        <% @album.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+<p>The album creation UI has been removed. The application now focuses on Songs and song-level reviews.
+To add a review, please search for a song on the <%= link_to 'Songs index', songs_path %> or use the MusicBrainz search on the main page.</p>
 
-  <div>
-    <%= f.label :title, "Album Title" %><br>
-    <%= f.text_field :title, placeholder: "Kid A" %>
-  </div>
-
-  <div>
-    <%= f.label :artist, "Artist Name" %><br>
-    <%= f.text_field :artist, placeholder: "Radiohead" %>
-  </div>
-
-  <div>
-    <%= f.submit "Add Album" %>
-  </div>
-<% end %>
-
-<p class="text-muted mt-lg"><%= link_to "← Back to albums", albums_path %></p>
+<p class="text-muted mt-lg"><%= link_to "← Back to songs", songs_path %></p>

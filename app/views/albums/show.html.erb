@@ -1,29 +1,4 @@
-<h1><%= @album.title %> — <%= @album.artist %></h1>
+<h1>Albums are deprecated</h1>
 
-<h2><%= @album.title %> — <%= @album.artist %></h2>
-
-<h3>Reviews</h3>
-<%# Find reviews for songs that match this album+artist %>
-<%
-  reviews_for_album = Review.joins(:song).where(songs: { album: @album.title, artist: @album.artist }).order(created_at: :desc)
-%>
-<% if reviews_for_album.any? %>
-  <% reviews_for_album.each do |review| %>
-    <div class="review">
-      <div class="review-header">
-        <span class="review-user"><%= link_to review.user.name, user_path(review.user) %></span>
-        <span class="review-rating"><%= review.rating %></span>
-      </div>
-      <p class="review-comment"><%= review.comment %></p>
-    </div>
-  <% end %>
-<% else %>
-  <p>No reviews yet for tracks on this album.</p>
-<% end %>
-
-<% if current_user %>
-  <p><%= link_to 'Add a review for this album', new_review_path(album_title: @album.title, artists: @album.artist) %></p>
-<% else %>
-  <h2>Album</h2>
-  <p>You must <%= link_to "sign in", new_session_path %> or <%= link_to "sign up", new_user_path %> to add reviews.</p>
-<% end %>
+<p>This album view has been deprecated. Song-level reviews are now stored on the Song resource.
+To see reviews for tracks, go to the <%= link_to 'Songs index', songs_path %> and search for tracks from this artist/album.</p>

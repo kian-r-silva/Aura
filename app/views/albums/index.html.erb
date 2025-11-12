@@ -1,58 +1,6 @@
-<% if current_user %>
+<h1>Albums (deprecated)</h1>
 
+<p>Album views have been deprecated. The application now uses Songs as the primary resource.
+Please visit the <%= link_to 'Songs index', songs_path %> to browse tracks and add reviews.</p>
 
-  <% if current_user && current_user.spotify_connected? %>
-    <div class="spotify-search" style="margin-bottom:18px;">
-      <%= form_with url: spotify_search_path, method: :get, local: true do |f| %>
-        <div style="display:flex; gap:8px; align-items:center;">
-          <%= f.text_field :q, placeholder: 'Search Spotify — song or artist', value: params[:q], size: 40, class: 'input' %>
-          <%= f.submit 'Search & Review', class: 'btn btn-primary' %>
-        </div>
-      <% end %>
-    </div>
-    <div class="cta-recent" style="padding:12px; margin-bottom:16px;">
-      <h3>Review songs you recently played</h3>
-      <p>Pick a few of the tracks you listened to recently and add your thoughts.</p>
-      <%= link_to "Review recently played", spotify_recent_path, class: "btn btn-primary" %>
-    </div>
-  <% end %>
-
-  <% if current_user && current_user.lastfm_connected? %>
-    <div class="lastfm-search" style="margin-bottom:18px;">
-      <%= form_with url: lastfm_search_path, method: :get, local: true do |f| %>
-        <div style="display:flex; gap:8px; align-items:center;">
-          <%= f.text_field :q, placeholder: 'Search Last.fm — song or artist', value: params[:q], size: 40, class: 'input' %>
-          <%= f.submit 'Search & Review', class: 'btn btn-primary' %>
-        </div>
-      <% end %>
-    </div>
-    <div class="cta-recent" style="padding:12px; margin-bottom:16px;">
-      <h3>Review songs you recently scrobbled</h3>
-      <p>Pick a few of the tracks you listened to recently and add your thoughts.</p>
-      <%= link_to "Review recently played", lastfm_recent_path, class: "btn btn-primary" %>
-    </div>
-  <% end %>
-
-  <div class="manual-search" style="margin-top:18px;">
-    <h3>Add a song manually</h3>
-    <p>If you do not have Spotify connected, search MusicBrainz and add a review manually.</p>
-    <div data-controller="musicbrainz-autocomplete">
-      <div style="display:flex;gap:8px;align-items:center;">
-   <input aria-label="Song title" placeholder="Song title" data-musicbrainz-autocomplete-target="titleInput"
-     data-action="keydown->musicbrainz-autocomplete#search" />
-   <input aria-label="Artist" placeholder="Artist" data-musicbrainz-autocomplete-target="artistInput"
-     data-action="keydown->musicbrainz-autocomplete#search" />
-   <button type="button" class="btn btn-secondary" data-action="click->musicbrainz-autocomplete#search">Search</button>
-      </div>
-      <ul data-musicbrainz-autocomplete-target="list" style="margin-top:0.5rem"></ul>
-    </div>
-
-  </div>
-
-<% else %>
-  <div class="text-center">
-    <h2>Welcome to Aura</h2>
-    <p>Where Music Taste Comes to Life</p>
-    <p>You must <%= link_to "sign in", new_session_path %> or <%= link_to "sign up", new_user_path %> to review and search songs.</p>
-  </div>
-<% end %>
+<p>If you reached this page by a bookmark, you'll be redirected — or use the link above.</p>

@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
-  root "albums#index"
+  # Main landing page now shows songs index (moved from albums#index)
+  root "songs#index"
 
   resources :users, only: %i[new create show]
   resource  :session, only: %i[new create destroy]
@@ -15,7 +16,7 @@ Rails.application.routes.draw do
   # top-level review routes for creating reviews not tied to an existing album yet
   resources :reviews, only: %i[new create]
 
-  resources :songs, only: %i[show]
+  resources :songs, only: %i[index show]
 
   get '/auth/spotify/callback', to: 'spotify_auth#callback'
   get '/auth/failure', to: 'spotify_auth#failure'

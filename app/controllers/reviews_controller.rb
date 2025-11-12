@@ -8,7 +8,8 @@ class ReviewsController < ApplicationController
     @review = Review.new
     # Allow pre-filling song/track information when coming from Spotify or MusicBrainz
     @song = if params[:track_name].present? && params[:artists].present?
-              Song.find_or_initialize_by(title: params[:track_name], artist: params[:artists], album: params[:album_title])
+              Song.find_or_initialize_by(title: params[:track_name], artist: params[:artists],
+                                         album: params[:album_title])
             elsif params[:song_id].present?
               Song.find_by(id: params[:song_id])
             end
@@ -23,32 +24,33 @@ class ReviewsController < ApplicationController
       artist = params[:artists]&.strip
       album_title = params[:album_title]&.strip
 
-      if title.present? && artist.present?
-        song = Song.find_or_create_by(title: title, artist: artist) do |s|
-          s.album = album_title
-        end
-      else
-        # fallback: create a placeholder song to attach the review
-        song = Song.find_or_create_by(title: (title.presence || 'Unknown Track'), artist: (artist.presence || 'Unknown Artist'))
-      end
+      song = if title.present? && artist.present?
+               Song.find_or_create_by(title: title, artist: artist) do |s|
+                 s.album = album_title
+               end
+             else
+               # fallback: create a placeholder song to attach the review
+               Song.find_or_create_by(title: title.presence || 'Unknown Track',
+                                      artist: artist.presence || 'Unknown Artist')
+             end
     end
 
-  review = song.reviews.build(review_params)
+    review = song.reviews.build(review_params)
 
-  review.rating = review.rating.to_i if review.rating.present?
-  
-  review.user = current_user
+    review.rating = review.rating.to_i if review.rating.present?
+
+    review.user = current_user
 
     if review.save
       # Redirect to the song show page (create a songs#show view)
-      redirect_to song_path(song), notice: "Review added"
+      redirect_to song_path(song), notice: 'Review added'
     else
       flash.now[:alert] = "Unable to save review: #{review.errors.full_messages.join(', ')}"
       @song = song
       # ensure the view has the reviews collection (songs#show expects @reviews)
       @reviews = @song.reviews.order(created_at: :desc)
       @review = review
-      render "songs/show", status: :unprocessable_entity
+      render 'songs/show', status: :unprocessable_entity
     end
   end
 
@@ -65,14 +67,15 @@ class ReviewsController < ApplicationController
     album_title = params[:album_title].to_s.strip
     artists = params[:artists].to_s.strip
 
-    if album_title.present? && artists.present?
-      song = Song.find_or_create_by(title: track_name.presence || track_name, artist: artists) do |s|
-        s.album = album_title
-      end
-    else
-      # fallback: create or find a song record using track_name/artist info
-      song = Song.find_or_create_by(title: (track_name.presence || 'Unknown Track'), artist: (artists.presence || 'Unknown Artist'))
-    end
+    song = if album_title.present? && artists.present?
+             Song.find_or_create_by(title: track_name.presence || track_name, artist: artists) do |s|
+               s.album = album_title
+             end
+           else
+             # fallback: create or find a song record using track_name/artist info
+             Song.find_or_create_by(title: track_name.presence || 'Unknown Track',
+                                    artist: artists.presence || 'Unknown Artist')
+           end
 
     review = song.reviews.build(user: current_user, rating: params[:rating], comment: params[:comment].to_s)
 
