@@ -14,9 +14,9 @@
         <div id="follow-btn-<%= @user.id %>">
           <% if current_user.id != @user.id %>
             <% if current_user.following?(@user) %>
-              <%= button_to "Following", friend_path(@user), method: :delete, class: "btn btn-outline-secondary", title: "Unfollow" %>
+              <%= button_to "Following", unfollow_friend_path(@user), method: :delete, class: "btn btn-outline-secondary", title: "Unfollow" %>
             <% else %>
-              <%= button_to "Follow", friend_path(@user), method: :post, class: "btn btn-primary", title: "Follow" %>
+              <%= button_to "Follow", follow_friend_path(@user), method: :post, class: "btn btn-primary", title: "Follow" %>
             <% end %>
           <% else %>
             <p class="text-muted">This is your profile</p>
@@ -56,6 +56,80 @@
           <%= @user.name %> hasn't written any reviews yet.
         </div>
       <% end %>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card mb-4">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Followers</h5>
+        </div>
+        <div class="card-body">
+          <% if @user.followers.any? %>
+            <div class="list-group list-group-flush">
+              <% @user.followers.limit(10).each do |follower| %>
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                  <div>
+                    <p class="mb-0 small">
+                      <%= link_to follower.name, friend_path(follower), class: "text-decoration-none" %>
+                    </p>
+                    <p class="mb-0 text-muted small">@<%= follower.username %></p>
+                  </div>
+                  <% if current_user.id != follower.id %>
+                    <div class="ms-2">
+                      <% if current_user.following?(follower) %>
+                        <%= button_to "✓", unfollow_friend_path(follower), method: :delete, class: "btn btn-sm btn-outline-secondary", title: "Unfollow" %>
+                      <% else %>
+                        <%= button_to "+", follow_friend_path(follower), method: :post, class: "btn btn-sm btn-primary", title: "Follow" %>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+            <% if @user.followers.count > 10 %>
+              <p class="text-muted small mt-3">... and <%= @user.followers.count - 10 %> more</p>
+            <% end %>
+          <% else %>
+            <p class="text-muted mb-0">No followers yet</p>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Following</h5>
+        </div>
+        <div class="card-body">
+          <% if @user.following.any? %>
+            <div class="list-group list-group-flush">
+              <% @user.following.limit(10).each do |following_user| %>
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                  <div>
+                    <p class="mb-0 small">
+                      <%= link_to following_user.name, friend_path(following_user), class: "text-decoration-none" %>
+                    </p>
+                    <p class="mb-0 text-muted small">@<%= following_user.username %></p>
+                  </div>
+                  <% if current_user.id != following_user.id %>
+                    <div class="ms-2">
+                      <% if current_user.following?(following_user) %>
+                        <%= button_to "✓", unfollow_friend_path(following_user), method: :delete, class: "btn btn-sm btn-outline-secondary", title: "Unfollow" %>
+                      <% else %>
+                        <%= button_to "+", follow_friend_path(following_user), method: :post, class: "btn btn-sm btn-primary", title: "Follow" %>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+            <% if @user.following.count > 10 %>
+              <p class="text-muted small mt-3">... and <%= @user.following.count - 10 %> more</p>
+            <% end %>
+          <% else %>
+            <p class="text-muted mb-0">Not following anyone yet</p>
+          <% end %>
+        </div>
+      </div>
     </div>
   </div>
 </div>
