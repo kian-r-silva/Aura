@@ -130,6 +130,39 @@ class LastfmClient
     []
   end
 
+  # Call Last.fm track.getSimilar to retrieve similar tracks for <artist> - <track>
+  # Returns array of hashes: { name:, artist:, url: }
+  def track_similar(artist, track, limit: 10)
+    return [] unless artist.present? && track.present? && ENV['LASTFM_API_KEY']
+
+    params = {
+      'method' => 'track.getSimilar',
+      'artist' => artist,
+      'track' => track,
+      'api_key' => ENV['LASTFM_API_KEY'],
+      'limit' => limit.to_s,
+      'format' => 'json'
+    }
+
+    resp = api_call(params, authenticated: false)
+    return [] unless resp && resp['similartracks']
+
+    tracks = resp.dig('similartracks', 'track') || []
+    tracks = [tracks] unless tracks.is_a?(Array)
+
+    tracks.map do |t|
+      artist_name = t.dig('artist', 'name') || t.dig('artist', '#text') || t['artist']
+      {
+        name: t['name'],
+        artist: artist_name,
+        url: t['url']
+      }
+    end
+  rescue StandardError => e
+    Rails.logger.error("[LastfmClient#track_similar] #{e.class}: #{e.message}")
+    []
+  end
+
   private
 
   def api_call(params, authenticated: false)

@@ -26,8 +26,9 @@
       <% if top.any? %>
         <ol>
           <% top.each do |s| %>
-            <li><%= link_to s.title, song_path(s) %> — <%= s.artist %> (<%= s.average_rating || '—' %>)</li>
-          <% end %>
+              <% avg = (s.respond_to?(:avg_rating) && s.avg_rating) || s.average_rating %>
+              <li><%= link_to s.title, song_path(s) %> — <%= s.artist %> (<%= avg || '—' %>)</li>
+            <% end %>
         </ol>
       <% else %>
         <p>No rated songs yet.</p>
@@ -40,7 +41,8 @@
       <% if personal.any? %>
         <ol>
           <% personal.each do |s| %>
-            <li><%= link_to s.title, song_path(s) %> — <%= s.artist %> (<%= s.average_rating || '—' %>)</li>
+            <% avg = (s.respond_to?(:avg_rating) && s.avg_rating) || s.average_rating %>
+            <li><%= link_to s.title, song_path(s) %> — <%= s.artist %> (<%= avg || '—' %>)</li>
           <% end %>
         </ol>
       <% else %>
@@ -53,8 +55,21 @@
       <% recs = analytics.recommendations_for_user(limit: 5) %>
       <% if recs.any? %>
         <ol>
-          <% recs.each do |s| %>
-            <li><%= link_to s.title, song_path(s) %> — <%= s.artist %> (<%= s.average_rating || '—' %>)</li>
+          <% recs.each do |item| %>
+            <% if item.is_a?(Song) || item.respond_to?(:title) %>
+              <% s = item %>
+              <% avg = (s.respond_to?(:avg_rating) && s.avg_rating) || s.average_rating %>
+              <li><%= link_to s.title, song_path(s) %> — <%= s.artist %> (<%= avg || '—' %>)</li>
+            <% elsif item.is_a?(Hash) && item[:name].present? %>
+              <li>
+                <% if item[:url].present? %>
+                  <a href="<%= item[:url] %>" target="_blank" rel="noopener noreferrer"><%= item[:name] %></a>
+                <% else %>
+                  <%= item[:name] %>
+                <% end %>
+                 — <%= item[:artist] %>
+              </li>
+            <% end %>
           <% end %>
         </ol>
       <% else %>
