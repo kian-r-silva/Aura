@@ -19,6 +19,7 @@ end
 
 Given("I am signed in as {string}") do |email|
   user = User.find_by(email: email) || User.create!(name: "Test User", username: (email.split('@').first), email: email, password: "password", password_confirmation: "password")
+  @current_user_email = email
   visit new_session_path
   fill_in "Username or Email", with: user.email
   fill_in "Password", with: "password"

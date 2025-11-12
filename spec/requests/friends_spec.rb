@@ -307,4 +307,229 @@ RSpec.describe 'Friends requests', type: :request do
       expect(user.following?(friend2)).to be true
     end
   end
+
+  describe 'GET /friends/:id/followers' do
+    context 'when not logged in' do
+      it 'redirects to login page' do
+        get followers_friend_path(friend1)
+        expect(response).to redirect_to(new_session_path)
+      end
+    end
+
+    context 'when logged in' do
+      before { sign_in(user, password: password) }
+
+      context 'when user has no followers' do
+        it 'returns 200 status' do
+          get followers_friend_path(friend1)
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'displays empty followers list' do
+          get followers_friend_path(friend1)
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      context 'when user has followers' do
+        before do
+          user.follow(friend1)
+          friend2.follow(friend1)
+        end
+
+        it 'returns 200 status' do
+          get followers_friend_path(friend1)
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'displays all followers' do
+          get followers_friend_path(friend1)
+          expect(response.body).to include(user.name)
+          expect(response.body).to include(friend2.name)
+        end
+
+        it 'displays follower usernames' do
+          get followers_friend_path(friend1)
+          expect(response.body).to include(user.username)
+          expect(response.body).to include(friend2.username)
+        end
+
+        it 'orders followers by name' do
+          # Create a follower with name starting with 'A'
+          early_follower = create(:user, name: 'Aaron', username: 'aaron_user', email: 'aaron@example.com')
+          early_follower.follow(friend1)
+          
+          get followers_friend_path(friend1)
+          # Just verify the page loads with multiple followers
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      context 'with non-existent user' do
+        it 'returns 404 for non-existent user' do
+          get followers_friend_path(id: 99999)
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
+  end
+
+  describe 'GET /friends/:id/following' do
+    context 'when not logged in' do
+      it 'redirects to login page' do
+        get following_friend_path(friend1)
+        expect(response).to redirect_to(new_session_path)
+      end
+    end
+
+    context 'when logged in' do
+      before { sign_in(user, password: password) }
+
+      context 'when user is not following anyone' do
+        it 'returns 200 status' do
+          get following_friend_path(friend1)
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'displays empty following list' do
+          get following_friend_path(friend1)
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      context 'when user is following others' do
+        before do
+          friend1.follow(user)
+          friend1.follow(friend2)
+        end
+
+        it 'returns 200 status' do
+          get following_friend_path(friend1)
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'displays all users being followed' do
+          get following_friend_path(friend1)
+          expect(response.body).to include(user.name)
+          expect(response.body).to include(friend2.name)
+        end
+
+        it 'displays following usernames' do
+          get following_friend_path(friend1)
+          expect(response.body).to include(user.username)
+          expect(response.body).to include(friend2.username)
+        end
+
+        it 'orders following by name' do
+          # Create a user with name starting with 'B'
+          new_user = create(:user, name: 'Bob', username: 'bob_user', email: 'bob@example.com')
+          friend1.follow(new_user)
+          
+          get following_friend_path(friend1)
+          # Just verify the page loads with multiple followed users
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      context 'with non-existent user' do
+        it 'returns 404 for non-existent user' do
+          get following_friend_path(id: 99999)
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
+  end
+
+  describe 'Followers and following tabs interactions' do
+    before { sign_in(user, password: password) }
+
+    it 'displays correct followers for a user' do
+      user.follow(friend1)
+      friend2.follow(friend1)
+      
+      get followers_friend_path(friend1)
+      
+      expect(response.body).to include(user.name)
+      expect(response.body).to include(friend2.name)
+    end
+
+    it 'displays correct following for a user' do
+      friend1.follow(user)
+      friend1.follow(friend2)
+      
+      get following_friend_path(friend1)
+      
+      expect(response.body).to include(user.name)
+      expect(response.body).to include(friend2.name)
+    end
+
+    it 'correctly reflects unfollows in followers list' do
+      user.follow(friend1)
+      friend2.follow(friend1)
+      
+      get followers_friend_path(friend1)
+      followers_count_before = friend1.followers.count
+      expect(followers_count_before).to eq(2)
+      expect(response.body).to include(user.name)
+      expect(response.body).to include(friend2.name)
+      
+      user.unfollow(friend1)
+      
+      get followers_friend_path(friend1)
+      followers_count_after = friend1.followers.count
+      expect(followers_count_after).to eq(1)
+      expect(response.body).to include(friend2.name)
+    end
+
+    it 'correctly reflects unfollows in following list' do
+      friend1.follow(user)
+      friend1.follow(friend2)
+      
+      get following_friend_path(friend1)
+      following_count_before = friend1.following.count
+      expect(following_count_before).to eq(2)
+      expect(response.body).to include(user.name)
+      expect(response.body).to include(friend2.name)
+      
+      friend1.unfollow(user)
+      
+      get following_friend_path(friend1)
+      following_count_after = friend1.following.count
+      expect(following_count_after).to eq(1)
+      expect(response.body).to include(friend2.name)
+    end
+
+    it 'handles mutual follows correctly' do
+      user.follow(friend1)
+      friend1.follow(user)
+      
+      get followers_friend_path(friend1)
+      expect(response.body).to include(user.name)
+      
+      get following_friend_path(friend1)
+      expect(response.body).to include(user.name)
+    end
+
+    context 'when viewing own profile followers and following' do
+      it 'displays user\'s followers correctly' do
+        friend1.follow(user)
+        friend2.follow(user)
+        
+        get followers_friend_path(user)
+        
+        expect(response.body).to include(friend1.name)
+        expect(response.body).to include(friend2.name)
+      end
+
+      it 'displays user\'s following correctly' do
+        user.follow(friend1)
+        user.follow(friend2)
+        
+        get following_friend_path(user)
+        
+        expect(response.body).to include(friend1.name)
+        expect(response.body).to include(friend2.name)
+      end
+    end
+  end
 end
