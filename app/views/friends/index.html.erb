@@ -28,9 +28,9 @@
                 </div>
                 <div id="follow-btn-<%= friend.id %>">
                   <% if current_user.following?(friend) %>
-                    <%= button_to "Following", friend_path(friend, user_id: current_user.id), method: :delete, class: "btn btn-sm btn-outline-secondary", title: "Unfollow" %>
+                    <%= button_to "Following", unfollow_friend_path(friend), method: :delete, class: "btn btn-sm btn-outline-secondary", title: "Unfollow" %>
                   <% else %>
-                    <%= button_to "Follow", friend_path(friend), method: :post, class: "btn btn-sm btn-primary", title: "Follow" %>
+                    <%= button_to "Follow", follow_friend_path(friend), method: :post, class: "btn btn-sm btn-primary", title: "Follow" %>
                   <% end %>
                 </div>
               </div>
@@ -68,3 +68,4 @@
     </div>
   <% end %>
 </div>
+
