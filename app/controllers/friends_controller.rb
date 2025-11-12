@@ -18,6 +18,16 @@ class FriendsController < ApplicationController
     @reviews = @user.reviews.order(created_at: :desc)
   end
 
+  def followers
+    @user = User.find(params[:id])
+    @followers = @user.followers.order(:name)
+  end
+
+  def following
+    @user = User.find(params[:id])
+    @following = @user.following.order(:name)
+  end
+
   def follow
     @user = User.find(params[:id])
     current_user.follow(@user)
