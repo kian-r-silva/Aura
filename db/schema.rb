@@ -32,6 +32,28 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_12_183250) do
     t.index ["following_id"], name: "index_follows_on_following_id"
   end
 
+  create_table "playlist_songs", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "playlist_id", null: false
+    t.integer "position"
+    t.bigint "song_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["playlist_id", "song_id"], name: "index_playlist_songs_on_playlist_id_and_song_id", unique: true
+    t.index ["playlist_id"], name: "index_playlist_songs_on_playlist_id"
+    t.index ["song_id"], name: "index_playlist_songs_on_song_id"
+  end
+
+  create_table "playlists", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "lastfm_playlist_id"
+    t.boolean "published_to_lastfm", default: false, null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_playlists_on_user_id"
+  end
+
   create_table "reviews", force: :cascade do |t|
     t.text "comment"
     t.datetime "created_at", null: false
@@ -71,14 +93,23 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_12_183250) do
     t.string "lastfm_username"
     t.string "name"
     t.string "password_digest"
+    t.string "spotify_access_token"
+    t.boolean "spotify_connected", default: false
+    t.string "spotify_refresh_token"
+    t.datetime "spotify_token_expires_at"
+    t.string "spotify_uid"
     t.datetime "updated_at", null: false
     t.string "username"
     t.index ["email"], name: "index_users_on_email_unique", unique: true
     t.index ["lastfm_username"], name: "index_users_on_lastfm_username", unique: true
+    t.index ["spotify_uid"], name: "index_users_on_spotify_uid", unique: true
     t.index ["username"], name: "index_users_on_username_unique", unique: true
   end
 
   add_foreign_key "follows", "users", column: "follower_id"
   add_foreign_key "follows", "users", column: "following_id"
+  add_foreign_key "playlist_songs", "playlists"
+  add_foreign_key "playlist_songs", "songs"
+  add_foreign_key "playlists", "users"
   add_foreign_key "reviews", "users"
 end
