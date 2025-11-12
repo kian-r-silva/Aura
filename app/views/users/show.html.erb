@@ -1,5 +1,4 @@
 <div class="profile-container">
-  <!-- Profile Header -->
   <div class="profile-header-enhanced">
     <div class="profile-info">
       <h1 class="profile-name"><%= @user.name %></h1>
@@ -12,7 +11,6 @@
       <% end %>
     </div>
     
-    <!-- Profile Stats with Followers/Following -->
     <div class="profile-stats-grid">
       <div class="stat-card">
         <div class="stat-value"><%= @user.reviews.count %></div>
@@ -33,10 +31,8 @@
     </div>
   </div>
 
-  <!-- Analytics Section -->
   <%= render 'analytics' %>
 
-  <!-- Reviews Section -->
   <div class="reviews-section">
     <div class="section-header">
       <h2>Recent Reviews</h2>
