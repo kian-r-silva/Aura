@@ -16,6 +16,43 @@
     </div>
   <% end %>
 
+<div class="recommendations" style="margin-top:24px;">
+    <h3>Recommendations for you</h3>
+    <p>Based on your listening, we think you might enjoy these. Give these a listen and drop a review!</p>
+    <% if @recommendations.present? %>
+      <ol>
+        <% @recommendations.each do |item| %>
+          <% if item.is_a?(Song) || item.respond_to?(:title) %>
+            <% s = item %>
+            <% avg = (s.respond_to?(:avg_rating) && s.avg_rating) || s.average_rating %>
+            <li style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1"><%= link_to s.title, song_path(s) %> — <%= s.artist %> (<%= avg || '—' %>)</div>
+              <div>
+                <%= link_to 'Review', new_review_path(song_id: s.id), class: 'btn btn-sm' %>
+              </div>
+            </li>
+          <% elsif item.is_a?(Hash) && item[:name].present? %>
+            <li style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1">
+                <% if item[:url].present? %>
+                  <a href="<%= item[:url] %>" target="_blank" rel="noopener noreferrer"><%= item[:name] %></a>
+                <% else %>
+                  <%= item[:name] %>
+                <% end %>
+                 — <%= item[:artist] %>
+              </div>
+              <div>
+                <%= link_to 'Review', new_review_path(track_name: item[:name], artists: item[:artist], album_title: nil), class: 'btn btn-sm' %>
+              </div>
+            </li>
+          <% end %>
+        <% end %>
+      </ol>
+    <% else %>
+      <p>No recommendations yet. Connect Last.fm or review songs to get suggestions.</p>
+    <% end %>
+  </div>
+
   <div class="manual-search" style="margin-top:18px;">
     <h3>Add a song manually</h3>
     <p>If you do not have Spotify connected, search MusicBrainz and add a review manually.</p>
