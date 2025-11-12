@@ -60,16 +60,10 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_11_193956) do
     t.string "lastfm_username"
     t.string "name"
     t.string "password_digest"
-    t.string "spotify_access_token"
-    t.boolean "spotify_connected", default: false
-    t.string "spotify_refresh_token"
-    t.datetime "spotify_token_expires_at"
-    t.string "spotify_uid"
     t.datetime "updated_at", null: false
     t.string "username"
     t.index ["email"], name: "index_users_on_email_unique", unique: true
     t.index ["lastfm_username"], name: "index_users_on_lastfm_username", unique: true
-    t.index ["spotify_uid"], name: "index_users_on_spotify_uid", unique: true
     t.index ["username"], name: "index_users_on_username_unique", unique: true
   end
 

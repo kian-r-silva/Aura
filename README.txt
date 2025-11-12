@@ -39,12 +39,7 @@ PORT=3000
 # DB_USER=dev
 # DB_PASSWORD=pass
 
-# Spotify OAuth
-extract from repo secrets
-SPOTIFY_CLIENT_ID=
-SPOTIFY_CLIENT_SECRET=
-SPOTIFY_REDIRECT_URI=http://localhost:3000/auth/spotify/callback
-EOF
+
 
 (end copy)
 
@@ -57,8 +52,7 @@ source .env.local
 set +a
 
 # Verify
-echo "$SPOTIFY_CLIENT_ID"
-echo "$SPOTIFY_REDIRECT_URI"
+echo "No Spotify integration in this branch."
 Database setup
 # One-time: create a Postgres superuser for your macOS user
 createuser -s "$(whoami)" 2>/dev/null || true
@@ -70,12 +64,7 @@ bin/rails db:seed   # if you have seeds
 Optional: secret key for development
 export SECRET_KEY_BASE=$(bin/rails secret)
 # or add to .env.local: SECRET_KEY_BASE=<the_value>
-Verify Spotify variables in Rails
-bin/rails runner 'puts "SPOTIFY_CLIENT_ID present? #{ENV.key?("SPOTIFY_CLIENT_ID")}"'
-Spotify redirect URI check
-In the Spotify Developer Dashboard, ensure your redirect URI matches exactly:
-http://127.0.0.1:3000/auth/spotify/callback
-Protocol, host, and port must match what you use locally.
+# Spotify integration removed from this branch. See Last.fm for alternative integrations.
 Start the Rails server
 bin/rails server -p 3000
 Visit http://localhost:3000

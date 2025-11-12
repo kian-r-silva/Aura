@@ -2,10 +2,6 @@
   <h1 class="profile-name"><%= @user.name %></h1>
   <p class="profile-username">@<%= @user.username %></p>
   
-  <% if @user.spotify_connected %>
-    <p style="color: #1db954;">♫ Spotify Connected</p>
-  <% end %>
-  
   <% if @user.lastfm_connected %>
     <p style="color: #d51007;">♫ Last.fm Connected</p>
   <% end %>

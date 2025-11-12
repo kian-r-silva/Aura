@@ -6,7 +6,6 @@
 
 
 require 'cucumber/rails'
-require 'omniauth'
 
 # Enable SimpleCov for cucumber runs when requested. This mirrors the RSpec
 # configuration and writes a separate resultset so we can collate results
@@ -39,9 +38,7 @@ end
 
 Before do
   DatabaseCleaner.start
-  # Ensure OmniAuth runs in test mode by default for Cucumber scenarios; individual scenarios
-  # may override/mock `OmniAuth.config.mock_auth[:spotify]` as needed.
-  OmniAuth.config.test_mode = true
+  # Cucumber scenarios may stub external services per-scenario; avoid global Spotify/OmniAuth assumptions.
 end
 
 # Allow Capybara default host (www.example.com) through Rails host authorization when running
@@ -67,18 +64,4 @@ After do
   DatabaseCleaner.clean
 end
 
-# Restore any SpotifyClient instance methods that were temporarily monkeypatched by
-# Cucumber steps. This keeps the class behavior isolated per-scenario.
-After do
-  if defined?(SpotifyClient) && SpotifyClient.instance_variable_defined?(:@__cucumber_original_methods)
-    originals = SpotifyClient.instance_variable_get(:@__cucumber_original_methods) || {}
-    originals.each do |name, unbound_method|
-      SpotifyClient.class_eval do
-        define_method(name) do |*args, &blk|
-          unbound_method.bind(self).call(*args, &blk)
-        end
-      end
-    end
-    SpotifyClient.remove_instance_variable(:@__cucumber_original_methods)
-  end
-end
+# No Spotify-specific restoration required.
