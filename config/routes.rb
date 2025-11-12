@@ -8,6 +8,8 @@ Rails.application.routes.draw do
     member do
       post :follow
       delete :unfollow
+      get :followers
+      get :following
     end
   end
   resources :albums, only: %i[index show new create] do
@@ -17,16 +19,6 @@ Rails.application.routes.draw do
   resources :reviews, only: %i[new create]
 
   resources :songs, only: %i[index show]
-
-  resources :playlists do
-    member do
-      post :publish_to_lastfm
-      post :add_lastfm_track
-    end
-    collection do
-      get :from_top_rated
-    end
-  end
 
   # MusicBrainz JSON search endpoint used by the manual review autocomplete
   get '/musicbrainz/search', to: 'musicbrainz#search', defaults: { format: :json }
@@ -47,3 +39,4 @@ Rails.application.routes.draw do
   # Search Last.fm tracks (q param)
   get '/lastfm/search', to: 'lastfm#search', as: :lastfm_search
 end
+
