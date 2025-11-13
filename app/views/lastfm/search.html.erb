@@ -22,7 +22,15 @@
         </div>
         <div style="display:flex; flex-direction:column; gap:6px;">
           <%= link_to 'Review', new_review_path(track_id: t[:id], track_name: t[:name], artists: t[:artists], album_title: t[:album]), class: 'btn' %>
-          <% if t[:external_url] %>
+          <% if params[:playlist_id].present? %>
+            <%= form_with url: Rails.application.routes.url_helpers.add_lastfm_track_playlist_path(params[:playlist_id]), method: :post, local: true do |ff| %>
+              <%= ff.hidden_field :track_name, value: t[:name] %>
+              <%= ff.hidden_field :artists, value: t[:artists] %>
+              <%= ff.hidden_field :album_title, value: t[:album] %>
+              <%= ff.hidden_field :external_url, value: t[:external_url] %>
+              <%= ff.submit 'Add to playlist', class: 'btn btn-outline-primary' %>
+            <% end %>
+          <% elsif t[:external_url] %>
             <%= link_to 'Open in Last.fm', t[:external_url], target: '_blank', rel: 'noopener', class: 'btn btn-secondary' %>
           <% end %>
         </div>

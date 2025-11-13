@@ -22,9 +22,9 @@ RSpec.describe PlaylistsController, type: :controller do
     end
 
     it 'requires ownership to add' do
-      other = create(:user, email: 'other@example.com', username: 'other')
-      allow(controller).to receive(:current_user).and_return(other)
-      post :add_lastfm_track, params: { id: playlist.id, track_name: 'X', artists: 'Y' }
+  other = create(:user, email: 'other@example.com', username: 'other')
+  allow(controller).to receive(:current_user).and_return(other)
+  post :add_lastfm_track, params: { id: playlist.id, track_name: 'X', artists: 'Y' }
       expect(response).to redirect_to(playlist_path(playlist))
       expect(flash[:alert]).to be_present
     end

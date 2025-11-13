@@ -19,7 +19,12 @@ Rails.application.routes.draw do
   resources :reviews, only: %i[new create]
 
   resources :songs, only: %i[index show]
-  resources :playlists, only: %i[index show new create] do
+
+  resources :playlists do
+    member do
+      post :publish_to_lastfm
+      post :add_lastfm_track
+    end
     collection do
       get :from_top_rated
     end
