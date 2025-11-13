@@ -166,6 +166,12 @@ body {
 
 .inline-form {
   display: inline;
+  background: transparent;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  margin: 0;
+  max-width: none;
 }
 
 button,
@@ -707,6 +713,16 @@ form {
   max-width: 500px;
   margin: var(--spacing-lg) 0;
   border: 1px solid var(--border-color);
+}
+
+form[style*="display: inline"] {
+  background: transparent;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  margin: 0;
+  max-width: none;
+  border-radius: 0;
 }
 
 form > div {

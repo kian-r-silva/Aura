@@ -2,9 +2,27 @@
   <h1 class="profile-name"><%= @user.name %></h1>
   <p class="profile-username">@<%= @user.username %></p>
   
-  <% if @user.lastfm_connected %>
-    <p style="color: #d51007;">♫ Last.fm Connected</p>
-  <% end %>
+  <div class="lastfm-connection-section" style="margin: 1rem 0;">
+    <% if current_user && current_user.id == @user.id %>
+      <%# User viewing their own profile - show connect/disconnect options %>
+      <% if @user.lastfm_connected %>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <p style="color: #d51007; margin: 0;">♫ Last.fm Connected</p>
+          <%= button_to "Disconnect Last.fm", disconnect_lastfm_path, method: :delete, class: "btn btn-sm", form: { style: "display: inline;" } %>
+        </div>
+      <% else %>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <p style="margin: 0;">Connect your Last.fm account to review recently played songs</p>
+          <%= link_to "Connect Last.fm", lastfm_auth_path, class: "btn btn-primary btn-sm" %>
+        </div>
+      <% end %>
+    <% else %>
+      <%# Viewing someone else's profile - just show status %>
+      <% if @user.lastfm_connected %>
+        <p style="color: #d51007;">♫ Last.fm Connected</p>
+      <% end %>
+    <% end %>
+  </div>
   
   <div class="profile-stats-grid">
     <div class="stat-card">
