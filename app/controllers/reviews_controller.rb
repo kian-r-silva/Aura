@@ -1,18 +1,17 @@
 class ReviewsController < ApplicationController
-  # require login for normal create flow; the MusicBrainz AJAX endpoint handles
-  # authentication itself so it can return JSON 401 instead of a redirect.
+  
   before_action :require_login, only: [:create]
 
-  # Render a new review form. The form relies on @review being present.
   def new
     @review = Review.new
-    # Allow pre-filling song/track information when coming from Spotify or MusicBrainz
-    @song = if params[:track_name].present? && params[:artists].present?
-              Song.find_or_initialize_by(title: params[:track_name], artist: params[:artists],
-                                         album: params[:album_title])
-            elsif params[:song_id].present?
-              Song.find_by(id: params[:song_id])
-            end
+    
+    if params[:track_name].present?
+      artist_name = params[:artists].presence || params[:artist].presence || 'Unknown Artist'
+      @song = Song.find_or_initialize_by(title: params[:track_name].to_s.strip, artist: artist_name) 
+      @song.album = params[:album_title] if params[:album_title].present?
+    elsif params[:song_id].present?
+      @song = Song.find_by(id: params[:song_id])
+    end
   end
 
   def create
@@ -29,7 +28,6 @@ class ReviewsController < ApplicationController
                  s.album = album_title
                end
              else
-               # fallback: create a placeholder song to attach the review
                Song.find_or_create_by(title: title.presence || 'Unknown Track',
                                       artist: artist.presence || 'Unknown Artist')
              end
