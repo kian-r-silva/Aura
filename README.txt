@@ -8,10 +8,6 @@ Team
 Application URL (deployed):
 - https://aura-engineering-saas-279c3bd96a5a.herokuapp.com/
 
-Objective
----------
-This README contains step-by-step instructions for a teaching assistant (TA) to set up and run the Aura Rails app locally, including how to generate a merged SimpleCov coverage report that combines RSpec and Cucumber results.
-
 Prerequisites (macOS)
 ---------------------
 - Homebrew (https://brew.sh/)
