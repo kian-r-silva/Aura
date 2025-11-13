@@ -62,14 +62,19 @@
 <% if @user.reviews.any? %>
   <%# Order reviews by song title, artist, album as requested %>
   <% @user.reviews.joins(:song).order(Arel.sql("songs.title ASC, songs.artist ASC, COALESCE(songs.album, '') ASC")).each do |review| %>
-    <div class="review">
-      <div class="review-header">
-        <span class="review-user">
-          <%= link_to review.song.title, song_path(review.song) %> — <%= review.song.artist %> <%= review.song.album.present? ? "— #{review.song.album}" : '' %>
-        </span>
-        <span class="review-rating"><%= review.rating %></span>
+    <div class="review" style="display: flex; gap: 1rem; align-items: flex-start;">
+      <% if @review_images&.dig(review.id).present? %>
+        <img src="<%= @review_images[review.id] %>" alt="<%= review.song.album.presence || review.song.title %>" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px; flex-shrink: 0;" />
+      <% end %>
+      <div style="flex: 1;">
+        <div class="review-header">
+          <span class="review-user">
+            <%= link_to review.song.title, song_path(review.song) %> — <%= review.song.artist %> <%= review.song.album.present? ? "— #{review.song.album}" : '' %>
+          </span>
+          <span class="review-rating"><%= review.rating %></span>
+        </div>
+        <p class="review-comment"><%= review.comment %></p>
       </div>
-      <p class="review-comment"><%= review.comment %></p>
     </div>
   <% end %>
 <% else %>

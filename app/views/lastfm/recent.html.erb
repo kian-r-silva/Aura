@@ -3,10 +3,7 @@
 <% if @tracks.present? %>
   <ul class="recent-tracks">
     <% @tracks.each do |t| %>
-      <li class="track" style="display:flex; gap:12px; margin-bottom:12px; align-items:center;">
-        <% if t[:image] %>
-          <img src="<%= t[:image] %>" alt="<%= t[:album] %>" width="64" height="64" />
-        <% end %>
+      <li class="track" style="display:flex; gap:12px; margin-bottom:12px; align-items:center;">      
         <div style="flex:1">
           <div><strong><%= t[:name] %></strong></div>
           <div><em><%= t[:artists] %></em> — <%= t[:album] %></div>

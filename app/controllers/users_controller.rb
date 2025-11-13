@@ -16,6 +16,17 @@ class UsersController < ApplicationController
   def show
     @user = User.find(params[:id])
     @analytics = AnalyticsService.new(@user)
+    
+    # Fetch images for reviews if Last.fm is available
+    @review_images = {}
+    if ENV['LASTFM_API_KEY'] && @user.reviews.any?
+      client = LastfmClient.new(current_user)
+      @user.reviews.includes(:song).each do |review|
+        next unless review.song.artist.present? && review.song.title.present?
+        image = client.get_track_image(review.song.artist, review.song.title)
+        @review_images[review.id] = image if image.present?
+      end
+    end
   end
 
   private

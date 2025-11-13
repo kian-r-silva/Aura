@@ -12,6 +12,11 @@ class ReviewsController < ApplicationController
     elsif params[:song_id].present?
       @song = Song.find_by(id: params[:song_id])
     end
+    
+    # Fetch song image from Last.fm if available
+    if @song.present? && @song.artist.present? && @song.title.present?
+      @song_image = fetch_song_image(@song)
+    end
   end
 
   def create
@@ -88,5 +93,15 @@ class ReviewsController < ApplicationController
 
   def review_params
     params.require(:review).permit(:rating, :comment)
+  end
+  
+  def fetch_song_image(song)
+    return nil unless ENV['LASTFM_API_KEY']
+    
+    client = LastfmClient.new(current_user)
+    client.get_track_image(song.artist, song.title)
+  rescue StandardError => e
+    Rails.logger.debug("[ReviewsController#fetch_song_image] Failed: #{e.message}")
+    nil
   end
 end

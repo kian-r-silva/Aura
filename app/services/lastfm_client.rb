@@ -130,6 +130,28 @@ class LastfmClient
     []
   end
 
+  # Get track image using track.getInfo API
+  def get_track_image(artist, track)
+    return nil unless artist.present? && track.present? && ENV['LASTFM_API_KEY']
+
+    params = {
+      'method' => 'track.getInfo',
+      'artist' => artist,
+      'track' => track,
+      'api_key' => ENV['LASTFM_API_KEY'],
+      'format' => 'json'
+    }
+
+    resp = api_call(params, authenticated: false)
+    return nil unless resp && resp['track']
+
+    track_data = resp['track']
+    extract_image_url(track_data['album']&.dig('image') || track_data['image'])
+  rescue StandardError => e
+    Rails.logger.debug("[LastfmClient#get_track_image] Failed for #{artist} - #{track}: #{e.message}")
+    nil
+  end
+
   # Call Last.fm track.getSimilar to retrieve similar tracks for <artist> - <track>
   # Returns array of hashes: { name:, artist:, url: }
   def track_similar(artist, track, limit: 10)

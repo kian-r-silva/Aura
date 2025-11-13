@@ -1,12 +1,17 @@
-<div class="song-header">
-  <h1><%= @song.title %></h1>
-  <p><strong>Artist:</strong> <%= @song.artist %></p>
-  <% if @song.album.present? %>
-    <p><strong>Album:</strong> <%= @song.album %></p>
+<div class="song-header" style="display: flex; gap: 2rem; align-items: flex-start;">
+  <% if @song_image.present? %>
+    <img src="<%= @song_image %>" alt="<%= @song.album.presence || @song.title %>" style="width: 200px; height: 200px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" />
   <% end %>
-  <% if @song.reviews.any? %>
-    <p><strong>Average Rating:</strong> <%= @song.average_rating %> / 5</p>
-  <% end %>
+  <div style="flex: 1;">
+    <h1><%= @song.title %></h1>
+    <p><strong>Artist:</strong> <%= @song.artist %></p>
+    <% if @song.album.present? %>
+      <p><strong>Album:</strong> <%= @song.album %></p>
+    <% end %>
+    <% if @song.reviews.any? %>
+      <p><strong>Average Rating:</strong> <%= @song.average_rating %> / 5</p>
+    <% end %>
+  </div>
 </div>
 
 <h2>Reviews</h2>
