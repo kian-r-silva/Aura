@@ -1,6 +1,16 @@
 require 'rails_helper'
 
 RSpec.describe "users/show.html.erb", type: :view do
+  # Include the ApplicationController helper methods in the view context
+  before do
+    helper_class = Module.new do
+      def current_user
+        nil
+      end
+    end
+    view.singleton_class.include(helper_class)
+  end
+
   it 'renders user profile' do
     user = create(:user, name: 'Profile User')
     assign(:user, user)
