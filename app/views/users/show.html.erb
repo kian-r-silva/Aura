@@ -6,20 +6,20 @@
     <p style="color: #d51007;">♫ Last.fm Connected</p>
   <% end %>
   
-  <div class="profile-stats">
-    <div class="stat">
+  <div class="profile-stats-grid">
+    <div class="stat-card">
       <div class="stat-value"><%= @user.reviews.count %></div>
       <div class="stat-label">Reviews</div>
     </div>
-    <div class="stat">
+    <div class="stat-card">
       <div class="stat-value"><%= link_to @user.followers.count, followers_friend_path(@user) %></div>
       <div class="stat-label">Followers</div>
     </div>
-    <div class="stat">
+    <div class="stat-card">
       <div class="stat-value"><%= link_to @user.following.count, following_friend_path(@user) %></div>
       <div class="stat-label">Following</div>
     </div>
-    <div class="stat">
+    <div class="stat-card">
       <div class="stat-value"><%= @user.reviews.average(:rating)&.round(1) || 0 %></div>
       <div class="stat-label">Avg Rating</div>
     </div>
