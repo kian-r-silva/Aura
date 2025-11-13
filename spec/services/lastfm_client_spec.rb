@@ -1,5 +1,162 @@
 require 'rails_helper'
 
+RSpec.describe LastfmClient, type: :service do
+  let(:user) { User.create!(email: 'lf@example.com', name: 'LF', username: 'lf', password: 'password') }
+
+  describe '.generate_signature' do
+    it 'returns deterministic md5 hex string' do
+      params = { 'method' => 'test', 'api_key' => 'k', 'z' => '1' }
+      sig1 = described_class.generate_signature(params, 'secret')
+      sig2 = described_class.generate_signature(params, 'secret')
+      expect(sig1).to be_a(String)
+      expect(sig1.length).to eq(32)
+      expect(sig1).to eq(sig2)
+    end
+  end
+
+  describe '.get_session' do
+    around do |example|
+      old_api = ENV.delete('LASTFM_API_KEY')
+      old_secret = ENV.delete('LASTFM_SHARED_SECRET')
+      example.run
+      ENV['LASTFM_API_KEY'] = old_api if old_api
+      ENV['LASTFM_SHARED_SECRET'] = old_secret if old_secret
+    end
+
+    it 'returns nil when env missing' do
+      expect(described_class.get_session('token')).to be_nil
+    end
+
+    it 'parses session on success' do
+      ENV['LASTFM_API_KEY'] = 'k'
+      ENV['LASTFM_SHARED_SECRET'] = 's'
+      body = { 'session' => { 'key' => 'sk', 'name' => 'bob' } }.to_json
+      allow(Faraday).to receive(:get).and_return(double(status: 200, body: body))
+
+      res = described_class.get_session('token')
+      expect(res).to eq({ session_key: 'sk', username: 'bob' })
+    end
+
+    it 'returns nil on non-200 or error in body' do
+      ENV['LASTFM_API_KEY'] = 'k'
+      ENV['LASTFM_SHARED_SECRET'] = 's'
+      allow(Faraday).to receive(:get).and_return(double(status: 500, body: ''))
+      expect(described_class.get_session('t')).to be_nil
+
+      allow(Faraday).to receive(:get).and_return(double(status: 200, body: { 'error' => 6, 'message' => 'err' }.to_json))
+      expect(described_class.get_session('t')).to be_nil
+    end
+  end
+
+  describe 'instance methods' do
+    before do
+      ENV['LASTFM_API_KEY'] = 'akey'
+      ENV['LASTFM_SHARED_SECRET'] = 'secret'
+    end
+
+    after do
+      ENV.delete('LASTFM_API_KEY')
+      ENV.delete('LASTFM_SHARED_SECRET')
+    end
+
+    describe '#api_call' do
+      it 'returns nil when API key missing' do
+        ENV.delete('LASTFM_API_KEY')
+        c = LastfmClient.new(user)
+        expect(c.send(:api_call, {}, authenticated: false)).to be_nil
+      end
+
+      it 'returns nil for authenticated call without session_key' do
+        c = LastfmClient.new(user)
+        expect(c.send(:api_call, { 'method' => 'x' }, authenticated: true)).to be_nil
+      end
+
+      it 'parses json on success and returns body' do
+        user.update!(lastfm_session_key: 'sk', lastfm_username: 'bob', lastfm_connected: true)
+        c = LastfmClient.new(user)
+        allow(Faraday).to receive(:get).and_return(double(status: 200, body: { 'ok' => true }.to_json))
+        out = c.send(:api_call, { 'method' => 'x' }, authenticated: true)
+        expect(out['ok']).to be true
+      end
+
+      it 'returns nil when body contains error' do
+        user.update!(lastfm_session_key: 'sk', lastfm_username: 'bob')
+        c = LastfmClient.new(user)
+        allow(Faraday).to receive(:get).and_return(double(status: 200, body: { 'error' => 1, 'message' => 'oops' }.to_json))
+        expect(c.send(:api_call, { 'method' => 'x' }, authenticated: true)).to be_nil
+      end
+
+      it 'rescues Faraday/network errors and returns nil' do
+        user.update!(lastfm_session_key: 'sk', lastfm_username: 'bob')
+        c = LastfmClient.new(user)
+        allow(Faraday).to receive(:get).and_raise(StandardError.new('boom'))
+        expect(c.send(:api_call, { 'method' => 'x' }, authenticated: true)).to be_nil
+      end
+    end
+
+    describe '#extract_image_url' do
+      it 'handles array of images preferring extralarge' do
+          c = LastfmClient.new
+          images = [ { '#text' => 'small', 'size' => 'small' }, { '#text' => 'big', 'size' => 'extralarge' } ]
+          expect(c.send(:extract_image_url, images)).to eq('big')
+      end
+
+      it 'handles hash images' do
+  c = LastfmClient.new
+  expect(c.send(:extract_image_url, { '#text' => 'x' })).to eq('x')
+      end
+
+      it 'returns to_s for other values' do
+  c = LastfmClient.new
+  expect(c.send(:extract_image_url, 'plain')).to eq('plain')
+      end
+    end
+
+    describe '#search_tracks and #recent_tracks and #track_similar' do
+      it 'search_tracks returns [] for blank query' do
+        c = LastfmClient.new
+        expect(c.search_tracks('')).to eq([])
+      end
+
+      it 'search_tracks handles single track response' do
+        c = LastfmClient.new
+        allow(c).to receive(:api_call).and_return({ 'results' => { 'trackmatches' => { 'track' => { 'name' => 'Only', 'artist' => 'A', 'url' => 'u' } } } })
+        res = c.search_tracks('q')
+        expect(res.first[:name]).to eq('Only')
+      end
+
+      it 'recent_tracks returns [] when user missing session' do
+        c = LastfmClient.new(user)
+        expect(c.recent_tracks).to eq([])
+      end
+
+      it 'recent_tracks handles single track and builds external_url' do
+        user.update!(lastfm_session_key: 'sk', lastfm_username: 'bob')
+        c = LastfmClient.new(user)
+        allow(c).to receive(:api_call).and_return({ 'recenttracks' => { 'track' => { 'name' => 'One', 'artist' => { '#text' => 'B' } } } })
+        out = c.recent_tracks
+        expect(out.first[:name]).to eq('One')
+        expect(out.first[:external_url]).to include('https://www.last.fm/music')
+      end
+
+      it 'track_similar returns [] when missing args or api key missing' do
+        ENV.delete('LASTFM_API_KEY')
+        c = LastfmClient.new
+        expect(c.track_similar('a', 'b')).to eq([])
+      end
+
+      it 'track_similar maps single response and artist variants' do
+        ENV['LASTFM_API_KEY'] = 'k'
+        c = LastfmClient.new
+        allow(c).to receive(:api_call).and_return({ 'similartracks' => { 'track' => { 'name' => 'S', 'artist' => { 'name' => 'Art' }, 'url' => 'u' } } })
+        res = c.track_similar('Art', 'Song')
+        expect(res.first[:artist]).to eq('Art')
+      end
+    end
+  end
+end
+require 'rails_helper'
+
 RSpec.describe LastfmClient do
   describe '.generate_signature' do
     it 'returns a 32-char md5 hex string and is deterministic' do

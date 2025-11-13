@@ -7,10 +7,11 @@ namespace :coverage do
     puts "Running Cucumber with coverage..."
     cucumber_ok = system({ 'CUCUMBER_COVERAGE' => 'true', 'RAILS_ENV' => 'test' }, 'bundle exec cucumber --format progress')
 
-    # Attempt to collate resultset JSON files produced by SimpleCov
     begin
       require 'simplecov'
-      resultsets = Dir.glob(File.join('coverage', '*.resultset.json'))
+    
+      resultsets = Dir.glob(File.join('coverage', '*resultset.json')) + Dir.glob(File.join('coverage', '.*resultset.json'))
+      resultsets.uniq!
       if resultsets.empty?
         puts "No SimpleCov resultset files found in coverage/. Check that both runs produced coverage files."
         exit 1 unless rspec_ok && cucumber_ok
@@ -28,7 +29,6 @@ namespace :coverage do
       puts "Unable to merge coverage reports: #{e.message}"
     end
 
-    # Exit with non-zero status if either run failed
     exit(1) unless rspec_ok && cucumber_ok
   end
 end
