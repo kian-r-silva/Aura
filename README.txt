@@ -122,7 +122,19 @@ bundle exec cucumber
 bundle exec rake coverage:all
 ```
 
-After `rake coverage:all` completes, open `coverage/index.html` in a browser to view the combined coverage report.
+After `rake coverage:all` completes you will have per-run snapshots plus the merged report in the `coverage/` folder:
+
+- `coverage/rspec_index.html` — snapshot of the RSpec-only coverage HTML produced immediately after the RSpec run.
+- `coverage/cucumber_index.html` — snapshot of the Cucumber-only coverage HTML produced immediately after the Cucumber run.
+- `coverage/index.html` — merged collated coverage report combining RSpec and Cucumber results.
+
+Open whichever file you need in your browser.
+
+```bash
+open coverage/rspec_index.html    # open the RSpec snapshot
+open coverage/cucumber_index.html # open the Cucumber snapshot
+open coverage/index.html         # open the merged report
+```
 
 Notes about Last.fm integration
 -------------------------------

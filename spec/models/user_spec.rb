@@ -1,6 +1,48 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
+  describe '#connect_lastfm_from_session' do
+    it 'connects user and clears other users with same lastfm_username' do
+      other = User.create!(email: 'o@example.com', name: 'O', username: 'o', password: 'password')
+      other.update!(lastfm_username: 'bob', lastfm_session_key: 'oldsk', lastfm_connected: true)
+
+      user = User.create!(email: 'u@example.com', name: 'U', username: 'u', password: 'password')
+
+      result = user.connect_lastfm_from_session('newsk', 'bob')
+      expect(result).not_to be false
+      other.reload
+      expect(other.lastfm_username).to be_nil
+      expect(other.lastfm_connected).to be_falsey
+      user.reload
+      expect(user.lastfm_username).to eq('bob')
+      expect(user.lastfm_session_key).to eq('newsk')
+      expect(user.lastfm_connected).to be_truthy
+    end
+
+    it 'returns false and logs when save! raises' do
+      user = User.create!(email: 'u2@example.com', name: 'U2', username: 'u2', password: 'password')
+      allow(user).to receive(:save!).and_raise(StandardError.new('boom'))
+      res = nil
+      expect { res = user.connect_lastfm_from_session('sk', 'x') }.not_to raise_error
+      expect(res).to eq(false)
+    end
+  end
+
+  describe '#disconnect_lastfm!' do
+    it 'clears lastfm fields' do
+      user = User.create!(email: 'd@example.com', name: 'D', username: 'd', password: 'password')
+      user.update!(lastfm_username: 'n', lastfm_session_key: 'sk', lastfm_connected: true)
+      user.disconnect_lastfm!
+      user.reload
+      expect(user.lastfm_username).to be_nil
+      expect(user.lastfm_session_key).to be_nil
+      expect(user.lastfm_connected).to be_falsey
+    end
+  end
+end
+require 'rails_helper'
+
+RSpec.describe User, type: :model do
   describe 'validations and associations' do
     subject { build(:user) }
 

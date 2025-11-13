@@ -1,6 +1,103 @@
 require 'rails_helper'
 
 RSpec.describe AnalyticsService, type: :service do
+  describe '#lastfm_top_artists and #lastfm_top_tracks' do
+    let(:user) { User.create!(email: 'u@example.com', name: 'U', username: 'u', password: 'password') }
+
+    it 'returns empty arrays when user not connected to lastfm' do
+      svc = AnalyticsService.new(user)
+      expect(svc.lastfm_top_artists).to eq([])
+      expect(svc.lastfm_top_tracks).to eq([])
+    end
+
+    it 'computes top artists and tracks when lastfm_connected' do
+      user.update!(lastfm_connected: true)
+      allow_any_instance_of(LastfmClient).to receive(:recent_tracks).and_return([
+        { name: 'Song A', artists: 'Artist 1' },
+        { name: 'Song B', artists: 'Artist 1' },
+        { name: 'Song A', artists: 'Artist 1' }
+      ])
+
+      svc = AnalyticsService.new(user)
+      top_artists = svc.lastfm_top_artists(limit: 2)
+      expect(top_artists.first[:artist]).to eq('Artist 1')
+      top_tracks = svc.lastfm_top_tracks(limit: 2)
+      expect(top_tracks.map { |t| t[:track] }).to include('Song A')
+    end
+  end
+
+  describe '#aura_top_rated_songs and recommendations_for_user' do
+    before do
+      @s1 = Song.create!(title: 'Top 1', artist: 'A')
+      @s2 = Song.create!(title: 'Top 2', artist: 'B')
+  Review.create!(song: @s1, rating: 5, comment: 'Great record', user: User.create!(email: 'r1@example.com', name: 'R1', username: 'r1', password: 'password'))
+  Review.create!(song: @s2, rating: 3, comment: 'Not bad at all', user: User.create!(email: 'r2@example.com', name: 'R2', username: 'r2', password: 'password'))
+      Rails.cache.clear
+    end
+
+    it 'returns aura top rated songs ordered by avg rating' do
+      svc = AnalyticsService.new(nil)
+      list = svc.aura_top_rated_songs(limit: 2)
+      expect(list.first.title).to eq(@s1.title)
+    end
+
+    it 'falls back to most_recently_reviewed_songs when user has no reviews and not connected' do
+      user = User.create!(email: 'u2@example.com', name: 'U2', username: 'u2', password: 'password')
+      svc = AnalyticsService.new(user)
+      recs = svc.recommendations_for_user(limit: 2)
+      expect(recs).to be_an(Array)
+      expect(recs.map(&:class).first).to be(Song)
+    end
+
+    it 'maps similar lastfm entries back to local Song records when possible' do
+      user = User.create!(email: 'u3@example.com', name: 'U3', username: 'u3', password: 'password')
+  reviewed = Song.create!(title: 'Reviewed', artist: 'RArtist')
+  Review.create!(song: reviewed, rating: 5, comment: 'A lovely track', user: user)
+
+      local_match = Song.create!(title: 'Other Song', artist: 'OArtist')
+
+      allow_any_instance_of(LastfmClient).to receive(:track_similar).and_return([
+        { name: 'Other Song', artist: 'OArtist', url: 'http://x' }
+      ])
+
+      svc = AnalyticsService.new(user)
+      recs = svc.recommendations_for_user(limit: 5)
+      expect(recs.any? { |r| r.is_a?(Song) && r.id == local_match.id }).to be(true)
+    end
+
+    it 'returns lightweight lastfm entries when no local match exists using recent tracks' do
+      user = User.create!(email: 'u4@example.com', name: 'U4', username: 'u4', password: 'password')
+      user.update!(lastfm_connected: true)
+
+      allow_any_instance_of(LastfmClient).to receive(:recent_tracks).and_return([
+        { name: 'Recent', artists: 'RA' }
+      ])
+      allow_any_instance_of(LastfmClient).to receive(:track_similar).and_return([
+        { name: 'X', artist: 'Y', url: 'http://x' }
+      ])
+
+      svc = AnalyticsService.new(user)
+      recs = svc.recommendations_for_user(limit: 3)
+      expect(recs.any? { |r| r.is_a?(Hash) && r[:source] == 'lastfm' && r[:name] == 'X' }).to be(true)
+    end
+
+    it 'recommendations_for_song defers to recommendations_for_user when recs blank and user provided' do
+      user = User.create!(email: 'u5@example.com', name: 'U5', username: 'u5', password: 'password')
+      song = Song.create!(title: 'Solo', artist: 'SoloArtist')
+
+  fake = double(recommendations_for_user: [{ name: 'Fallback', artist: 'F', source: 'lastfm' }])
+  allow(AnalyticsService).to receive(:new).and_call_original
+  allow(AnalyticsService).to receive(:new).with(user).and_return(fake)
+
+  svc = AnalyticsService.new(nil)
+  res = svc.recommendations_for_song(song, user, limit: 1)
+      expect(res.first[:name]).to eq('Fallback')
+    end
+  end
+end
+require 'rails_helper'
+
+RSpec.describe AnalyticsService, type: :service do
   describe '#recommendations_for_user' do
     let(:user) { create(:user) }
 
