@@ -72,12 +72,13 @@ class PlaylistsController < ApplicationController
     album_title = params[:album_title] || params[:album]
     external_url = params[:external_url]
 
-    if track_name.blank? || artists.blank?
+    if track_name.blank?
       redirect_to @playlist, alert: 'Missing track information.' and return
     end
 
     title = track_name.strip
-    artist = artists.strip
+    # Allow missing artist by falling back to a placeholder so users can still add tracks
+    artist = artists.to_s.strip.presence || 'Unknown Artist'
 
     song = Song.find_or_create_by(title: title, artist: artist) do |s|
       s.album = album_title if album_title.present?
