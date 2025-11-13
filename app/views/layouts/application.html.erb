@@ -32,6 +32,9 @@
                 <span class="lastfm-indicator" title="Last.fm Connected">♫</span>
               <% end %>
             </div>
+            <% unless current_user.lastfm_connected %>
+              <%= link_to "Connect Last.fm", lastfm_auth_path, class: "btn btn-primary btn-sm" %>
+            <% end %>
             <%= button_to "Sign Out", session_path, method: :delete, class: "btn btn-ghost", form: { class: "inline-form" } %>
           </div>
         <% else %>
