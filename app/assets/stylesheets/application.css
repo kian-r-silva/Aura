@@ -559,28 +559,29 @@ input[type="submit"]:active,
 }
 
 .profile-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-lg);
+  display: flex;
+  flex-wrap: wrap; /* allows wrapping on small screens */
+  /* gap: var(--spacing-lg);  */
+  justify-content: flex-start; /* left-align everything */
+  margin-bottom: var(--spacing-md) 0;
 }
 
 
 .stat-card {
   text-align: center;
   padding: var(--spacing-md);
-  background: var(--bg-tertiary);
-  border-radius: var(--border-radius-md);
-  border: 1px solid var(--border-color);
-  transition: all var(--transition-base);
+  /* background: var(--bg-tertiary); */
+  /* border-radius: var(--border-radius-md); */
+  /* border: 1px solid var(--border-color); */
+  /* transition: all var(--transition-base); */
 }
 
-.stat-card:hover {
+/* .stat-card:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-sm);
   border-color: var(--accent-primary);
   background: white;
-}
+} */
 
 .stat-value {
   font-size: var(--font-size-2xl);
