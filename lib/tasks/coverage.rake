@@ -4,8 +4,26 @@ namespace :coverage do
     puts "Running RSpec with coverage..."
     rspec_ok = system({ 'SPEC_COVERAGE' => 'true', 'RAILS_ENV' => 'test' }, 'bundle exec rspec')
 
+    begin
+      require 'fileutils'
+      if File.exist?(File.join('coverage', 'index.html'))
+        FileUtils.mkdir_p(File.join('coverage'))
+        FileUtils.cp(File.join('coverage', 'index.html'), File.join('coverage', 'rspec_index.html'))
+      end
+    rescue StandardError => e
+      puts "Warning: unable to save RSpec coverage HTML copy: #{e.message}"
+    end
+
     puts "Running Cucumber with coverage..."
     cucumber_ok = system({ 'CUCUMBER_COVERAGE' => 'true', 'RAILS_ENV' => 'test' }, 'bundle exec cucumber --format progress')
+
+    begin
+      if File.exist?(File.join('coverage', 'index.html'))
+        FileUtils.cp(File.join('coverage', 'index.html'), File.join('coverage', 'cucumber_index.html'))
+      end
+    rescue StandardError => e
+      puts "Warning: unable to save Cucumber coverage HTML copy: #{e.message}"
+    end
 
     begin
       require 'simplecov'
