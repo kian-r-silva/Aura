@@ -1,7 +1,89 @@
 <% if current_user %>
 
+  <% if current_user && !current_user.lastfm_connected? %>
+    <div class="cta-section" style="display:flex;justify-content:center;margin:18px 0;">
+      <div class="cta-card primary-cta"style="max-width:920px;width:100%;text-align:center;padding:18px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border-color);box-shadow:var(--shadow-sm);">
+        <h2 style="margin-bottom:12px;font-weight:600;color:var(--text-primary);">Connect your Last.fm account to import recently played tracks automatically and get better personalized recommendations.</h2>
+        <%= link_to "Connect Last.fm", lastfm_auth_path, class: "btn btn-cta" %>
+      </div>
+    </div>
+
+    <div class="manual-search-section">
+    <h3>Add a Song Manually</h3>
+    <p class="section-description">Search MusicBrainz database and add a review for any song</p>
+    <div data-controller="musicbrainz-autocomplete">
+      <div class="manual-search-form">
+        <input 
+          aria-label="Song title" 
+          placeholder="Enter song title" 
+          data-musicbrainz-autocomplete-target="titleInput"
+          data-action="keydown->musicbrainz-autocomplete#search" 
+          class="search-input" />
+        <input 
+          aria-label="Artist" 
+          placeholder="Enter artist name" 
+          data-musicbrainz-autocomplete-target="artistInput"
+          data-action="keydown->musicbrainz-autocomplete#search" 
+          class="search-input" />
+        <button 
+          type="button" 
+          class="btn btn-secondary" 
+          data-action="click->musicbrainz-autocomplete#search">
+          Search
+        </button>
+      </div>
+      <ul data-musicbrainz-autocomplete-target="list" class="autocomplete-results"></ul>
+    </div>
+  </div>
+  <div class="recommendations-section">
+    <h3>Recommended For You</h3>
+    <p class="section-description">Based on your listening history, we think you'll enjoy these tracks</p>
+    <% if @recommendations.present? %>
+      <div class="recommendations-list">
+        <% @recommendations.each do |item| %>
+          <% if item.is_a?(Song) || item.respond_to?(:title) %>
+            <% s = item %>
+            <% avg = (s.respond_to?(:avg_rating) && s.avg_rating) || s.average_rating %>
+            <div class="recommendation-item">
+              <div class="recommendation-info">
+                <div class="song-title"><%= link_to s.title, song_path(s) %></div>
+                <div class="song-artist"><%= s.artist %></div>
+                <% if avg %>
+                  <div class="song-rating">★ <%= avg %></div>
+                <% end %>
+              </div>
+              <div class="recommendation-action">
+                <%= link_to 'Review', new_review_path(song_id: s.id), class: 'btn btn-compact' %>
+              </div>
+            </div>
+          <% elsif item.is_a?(Hash) && item[:name].present? %>
+            <div class="recommendation-item">
+              <div class="recommendation-info">
+                <div class="song-title">
+                  <% if item[:url].present? %>
+                    <a href="<%= item[:url] %>" target="_blank" rel="noopener noreferrer"><%= item[:name] %></a>
+                  <% else %>
+                    <%= item[:name] %>
+                  <% end %>
+                </div>
+                <div class="song-artist"><%= item[:artist] %></div>
+              </div>
+              <div class="recommendation-action">
+                <%= link_to 'Review', new_review_path(track_name: item[:name], artists: item[:artist], album_title: nil), class: 'btn btn-compact' %>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="empty-recommendations">
+        <p>No recommendations yet. Connect Last.fm or review songs to get personalized suggestions.</p>
+      </div>
+    <% end %>
+  </div>
+  <% end %>
+
   <% if current_user && current_user.lastfm_connected? %>
-    <!-- Call to Action Section -->
     <div class="cta-section">
       <div class="cta-card primary-cta">
         <h2>🎵 Review Your Recently Played Songs</h2>
@@ -20,7 +102,6 @@
         </div>
       <% end %>
     </div>
-  <% end %>
 
   <div class="recommendations-section">
     <h3>Recommended For You</h3>
@@ -68,34 +149,7 @@
       </div>
     <% end %>
   </div>
-
-  <div class="manual-search-section">
-    <h3>Add a Song Manually</h3>
-    <p class="section-description">Search MusicBrainz database and add a review for any song</p>
-    <div data-controller="musicbrainz-autocomplete">
-      <div class="manual-search-form">
-        <input 
-          aria-label="Song title" 
-          placeholder="Enter song title" 
-          data-musicbrainz-autocomplete-target="titleInput"
-          data-action="keydown->musicbrainz-autocomplete#search" 
-          class="search-input" />
-        <input 
-          aria-label="Artist" 
-          placeholder="Enter artist name" 
-          data-musicbrainz-autocomplete-target="artistInput"
-          data-action="keydown->musicbrainz-autocomplete#search" 
-          class="search-input" />
-        <button 
-          type="button" 
-          class="btn btn-secondary" 
-          data-action="click->musicbrainz-autocomplete#search">
-          Search
-        </button>
-      </div>
-      <ul data-musicbrainz-autocomplete-target="list" class="autocomplete-results"></ul>
-    </div>
-  </div>
+  <% end %>
 
 <% else %>
   <div class="welcome-section">
