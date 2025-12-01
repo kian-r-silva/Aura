@@ -50,70 +50,81 @@ class AnalyticsService
   end
 
   def recommendations_for_user(limit: 5)
-    #return aura_fallback_recommendations(limit) unless @user
+    return [] unless @user
 
     cache_key = "analytics:recommendations:user:#{@user.id}:limit:#{limit}"
-    return Rails.cache.fetch(cache_key, expires_in: 1.hour) do
+    Rails.cache.fetch(cache_key, expires_in: 1.hour) do
+      # 1) Prefer similar songs to the user's 5 most recent reviewed songs
+      reviewed_songs = @user.reviews.order(created_at: :desc).limit(5).includes(:song).map(&:song).compact
+      reviewed_song_ids = @user.reviews.pluck(:song_id)
 
-    # 1) Prefer similar songs to the user's 5 most recent reviewed songs
-    reviewed_songs = @user.reviews.order(created_at: :desc).limit(5).includes(:song).map(&:song).compact
-    reviewed_song_ids = @user.reviews.pluck(:song_id)
+      suggestions = []
 
-    suggestions = []
+      if reviewed_songs.any?
+        # Collect similar tracks for all reviewed songs
+        similar_tracks = reviewed_songs.flat_map do |s|
+          @lastfm_client.track_similar(s.artist, s.title, limit: 10)
+        end.compact
 
-    if reviewed_songs.any?
-      # Collect similar tracks for all reviewed songs
-      similar_tracks = reviewed_songs.flat_map do |s|
-        @lastfm_client.track_similar(s.artist, s.title, limit: 10)
-      end.compact
+        # Batch-find any matching Song records and build a mapping from normalized pair -> Song
+        song_map = batch_find_songs_map(similar_tracks, reviewed_song_ids)
 
-      # Batch-find any matching Song records and build a mapping from normalized pair -> Song
-      song_map = batch_find_songs_map(similar_tracks, reviewed_song_ids)
-
-      # Iterate in original order: prefer Last.fm entries (name/artist) first in the UI.
-      similar_tracks.uniq! { |t| [t[:name].to_s.downcase, t[:artist].to_s.downcase] }
-      similar_tracks.each do |t|
-        break if suggestions.size >= limit
-        key = [t[:name].to_s.strip.downcase, t[:artist].to_s.strip.downcase]
-        if song_map[key]
-          song = song_map[key]
-          next if reviewed_song_ids.include?(song.id) || suggestions.any? { |s| s.is_a?(Song) && s.id == song.id }
-          suggestions << song
-        else
-          # push a lightweight Last.fm entry when no local match exists
-          suggestions << { name: t[:name], artist: t[:artist], url: t[:url], source: 'lastfm' }
+        # Iterate in original order: prefer Last.fm entries (name/artist) first in the UI.
+        similar_tracks.uniq! { |t| [t[:name].to_s.downcase, t[:artist].to_s.downcase] }
+        similar_tracks.each do |t|
+          break if suggestions.size >= limit
+          key = [t[:name].to_s.strip.downcase, t[:artist].to_s.strip.downcase]
+          if song_map[key]
+            song = song_map[key]
+            next if reviewed_song_ids.include?(song.id) || suggestions.any? { |s| s.is_a?(Song) && s.id == song.id }
+            suggestions << song
+          else
+            # push a lightweight Last.fm entry when no local match exists
+            suggestions << { name: t[:name], artist: t[:artist], url: t[:url], source: 'lastfm' }
+          end
         end
       end
-    end
 
-    # 2) If no reviewed songs or no suggestions, use the user's recent Last.fm listens
-    if suggestions.size < limit && @user&.lastfm_connected
-      recent = @lastfm_client.recent_tracks(limit: 5)
-      recent_similar = recent.flat_map do |r|
-        @lastfm_client.track_similar(r[:artists], r[:name], limit: 10)
-      end.compact
+      # 2) If no reviewed songs or no suggestions, use the user's recent Last.fm listens
+      if suggestions.size < limit && @user.lastfm_connected?
+        begin
+          recent = @lastfm_client.recent_tracks(limit: 10)
+          Rails.logger.debug("[AnalyticsService] Recent tracks count: #{recent.size}")
+          
+          recent_similar = recent.flat_map do |r|
+            artist = r[:artists] || r[:artist]
+            name = r[:name]
+            next unless artist.present? && name.present?
+            
+            similar = @lastfm_client.track_similar(artist, name, limit: 10)
+            Rails.logger.debug("[AnalyticsService] Similar tracks for #{name} by #{artist}: #{similar.size}")
+            similar
+          end.compact
 
-      # Batch-find mapped songs for recent_similar and append entries to fill remaining slots.
-      recent_map = batch_find_songs_map(recent_similar, reviewed_song_ids + suggestions.select { |s| s.is_a?(Song) }.map(&:id))
+          # Batch-find mapped songs for recent_similar and append entries to fill remaining slots.
+          recent_map = batch_find_songs_map(recent_similar, reviewed_song_ids + suggestions.select { |s| s.is_a?(Song) }.map(&:id))
 
-      recent_similar.uniq! { |t| [t[:name].to_s.downcase, t[:artist].to_s.downcase] }
-      recent_similar.each do |t|
-        break if suggestions.size >= limit
-        key = [t[:name].to_s.strip.downcase, t[:artist].to_s.strip.downcase]
-        if recent_map[key]
-          song = recent_map[key]
-          next if reviewed_song_ids.include?(song.id) || suggestions.any? { |s| s.is_a?(Song) && s.id == song.id }
-          suggestions << song
-        else
-          suggestions << { name: t[:name], artist: t[:artist], url: t[:url], source: 'lastfm' }
+          recent_similar.uniq! { |t| [t[:name].to_s.downcase, t[:artist].to_s.downcase] }
+          recent_similar.each do |t|
+            break if suggestions.size >= limit
+            key = [t[:name].to_s.strip.downcase, t[:artist].to_s.strip.downcase]
+            if recent_map[key]
+              song = recent_map[key]
+              next if reviewed_song_ids.include?(song.id) || suggestions.any? { |s| s.is_a?(Song) && s.id == song.id }
+              suggestions << song
+            else
+              suggestions << { name: t[:name], artist: t[:artist], url: t[:url], source: 'lastfm' }
+            end
+          end
+        rescue StandardError => e
+          Rails.logger.error("[AnalyticsService] Error fetching Last.fm recommendations: #{e.message}")
         end
       end
-    end
 
-    # 3) Final fallback: most recently reviewed songs on the platform
-    if suggestions.empty?
-      suggestions = most_recently_reviewed_songs(limit: limit).to_a
-    end
+      # 3) Final fallback: most recently reviewed songs on the platform
+      if suggestions.empty?
+        suggestions = most_recently_reviewed_songs(limit: limit).to_a
+      end
 
       suggestions.compact.uniq.first(limit)
     end
