@@ -82,6 +82,10 @@ Then("I should see {string} on the page") do |text|
   expect(page).to have_text(/#{Regexp.escape(text)}/i)
 end
 
+Then("I should not see {string} on the page") do |text|
+  expect(page).not_to have_text(/#{Regexp.escape(text)}/i)
+end
+
 Then("the playlist should contain {int} song") do |count|
   @playlist = @playlist || Playlist.last
   expect(@playlist.songs.count).to eq(count)

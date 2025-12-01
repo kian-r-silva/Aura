@@ -39,6 +39,13 @@ class PlaylistsController < ApplicationController
 
   # Build a playlist from the user's top rated songs (server-side helper)
   def from_top_rated
+    # Check if user has reviewed at least 5 songs
+    review_count = current_user.reviews.count
+    if review_count < 5
+      redirect_to playlists_path, alert: 'Please review at least 5 songs before creating a top rated playlist.'
+      return
+    end
+
     top = AnalyticsService.new(current_user).user_top_rated_songs(limit: 10)
     @playlist = current_user.playlists.create(title: "My Top Rated Songs")
     top.each { |s| @playlist.add_song(s) }

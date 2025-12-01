@@ -15,6 +15,10 @@ Then("I should see {string}") do |text|
   expect(page).to have_text(/#{Regexp.escape(text)}/i)
 end
 
+Then("I should not see {string}") do |text|
+  expect(page).not_to have_text(/#{Regexp.escape(text)}/i)
+end
+
 Given("I am signed in as {string}") do |email|
   user = User.find_by(email: email) || User.create!(name: "Test User", username: (email.split('@').first), email: email, password: "password", password_confirmation: "password")
   @current_user_email = email

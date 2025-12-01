@@ -91,12 +91,18 @@ RSpec.describe PlaylistsController, type: :controller do
   end
 
   describe 'GET #from_top_rated' do
-    it 'creates playlist from top rated songs' do
+    it 'creates playlist from top rated songs when user has 5+ reviews' do
       song1 = create(:song, title: 'Top 1', artist: 'Artist')
       song2 = create(:song, title: 'Top 2', artist: 'Artist')
+      song3 = create(:song, title: 'Top 3', artist: 'Artist')
+      song4 = create(:song, title: 'Top 4', artist: 'Artist')
+      song5 = create(:song, title: 'Top 5', artist: 'Artist')
       
-      create(:review, user: user, song: song1, rating: 5, comment: 'Excellent!')
-      create(:review, user: user, song: song2, rating: 4, comment: 'Very Good!')
+      create(:review, user: user, song: song1, rating: 5, comment: 'Excellent track!')
+      create(:review, user: user, song: song2, rating: 4, comment: 'Very good song!')
+      create(:review, user: user, song: song3, rating: 4, comment: 'Good music here!')
+      create(:review, user: user, song: song4, rating: 3, comment: 'Nice to listen!')
+      create(:review, user: user, song: song5, rating: 3, comment: 'Decent overall!')
 
       expect {
         get :from_top_rated
@@ -109,13 +115,28 @@ RSpec.describe PlaylistsController, type: :controller do
       expect(flash[:notice]).to be_present
     end
 
-    it 'creates empty playlist when user has no rated songs' do
+    it 'redirects with alert when user has fewer than 5 reviews' do
+      song1 = create(:song, title: 'Top 1', artist: 'Artist')
+      song2 = create(:song, title: 'Top 2', artist: 'Artist')
+      
+      create(:review, user: user, song: song1, rating: 5, comment: 'Excellent track!')
+      create(:review, user: user, song: song2, rating: 4, comment: 'Very good song!')
+
       expect {
         get :from_top_rated
-      }.to change(Playlist, :count).by(1)
+      }.not_to change(Playlist, :count)
 
-      new_playlist = Playlist.last
-      expect(new_playlist.songs).to be_empty
+      expect(response).to redirect_to(playlists_path)
+      expect(flash[:alert]).to eq('Please review at least 5 songs before creating a top rated playlist.')
+    end
+
+    it 'redirects with alert when user has no reviews' do
+      expect {
+        get :from_top_rated
+      }.not_to change(Playlist, :count)
+
+      expect(response).to redirect_to(playlists_path)
+      expect(flash[:alert]).to eq('Please review at least 5 songs before creating a top rated playlist.')
     end
   end
 
