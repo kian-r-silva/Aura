@@ -1,7 +1,7 @@
 <h2>Sign up for Aura</h2>
 <p class="text-muted">Join the community and start tracking your music taste</p>
 
-<%= form_with model: @user, url: signup_with_lastfm_path, local: true, id: "signup_form" do |f| %>
+<%= form_with model: @user, url: signup_with_lastfm_path, local: true, id: "signup_form", data: { turbo: false } do |f| %>
   <% if @user.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h2>

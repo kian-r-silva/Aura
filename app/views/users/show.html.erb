@@ -13,7 +13,7 @@
       <% else %>
         <div style="display: flex; align-items: center; gap: 1rem;">
           <p style="margin: 0;">Connect your Last.fm account to review recently played songs</p>
-          <%= link_to "Connect Last.fm", lastfm_auth_path, class: "btn btn-primary btn-sm" %>
+          <%= link_to "Connect Last.fm", lastfm_auth_path, class: "btn btn-primary btn-sm", data: { turbo: false } %>
         </div>
       <% end %>
     <% else %>
