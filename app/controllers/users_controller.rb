@@ -1,14 +1,28 @@
 class UsersController < ApplicationController
+  skip_before_action :verify_authenticity_token, only: [:signup_with_lastfm]
+  
   def new
     @user = User.new
   end
 
-  def create
+  def signup_with_lastfm
+    # Validate user params first
     @user = User.new(user_params)
-    if @user.save
-      session[:user_id] = @user.id
-      redirect_to songs_path, notice: "Welcome, #{@user.name}"
+    
+    if @user.valid?
+      # Store signup data in session temporarily (use string keys for session compatibility)
+      session[:pending_signup] = {
+        'name' => params[:user][:name],
+        'email' => params[:user][:email],
+        'username' => params[:user][:username],
+        'password' => params[:user][:password],
+        'password_confirmation' => params[:user][:password_confirmation]
+      }
+      
+      # Redirect to Last.fm OAuth with signup flag
+      redirect_to lastfm_auth_path(signup_flow: true), allow_other_host: false
     else
+      # Show validation errors
       render :new, status: :unprocessable_entity
     end
   end

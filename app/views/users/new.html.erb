@@ -1,7 +1,7 @@
 <h2>Sign up for Aura</h2>
 <p class="text-muted">Join the community and start tracking your music taste</p>
 
-<%= form_with model: @user, local: true do |f| %>
+<%= form_with model: @user, url: signup_with_lastfm_path, local: true, id: "signup_form" do |f| %>
   <% if @user.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h2>
@@ -38,8 +38,12 @@
     <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
   </div>
 
-  <div>
-    <%= f.submit "Create Account" %>
+  <div style="margin-top: 30px; padding: 20px; background-color: #f8f9fa; border-radius: 8px;">
+    <h4>Connect Your Last.fm Account</h4>
+    <p class="text-muted">Last.fm connection is required to unlock personalized recommendations and track your listening history.</p>
+    
+    <%= f.submit "Connect Last.fm and Create Account", class: "btn btn-primary btn-lg" %>
+    <p class="text-muted small mt-2">You'll be redirected to Last.fm to authorize, then your account will be created.</p>
   </div>
 <% end %>
 

@@ -2,7 +2,8 @@ Rails.application.routes.draw do
   # Main landing page now shows songs index (moved from albums#index)
   root "songs#index"
 
-  resources :users, only: %i[new create show]
+  resources :users, only: %i[new show]
+  post '/signup_with_lastfm', to: 'users#signup_with_lastfm', as: :signup_with_lastfm
   resource  :session, only: %i[new create destroy]
   resources :friends, only: %i[index show] do
     member do
