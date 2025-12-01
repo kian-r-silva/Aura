@@ -4,7 +4,9 @@ class LastfmAuthController < ApplicationController
 
   def auth
     api_key = ENV['LASTFM_API_KEY']
-    callback_url = ENV['LASTFM_CALLBACK_URL'] || lastfm_auth_callback_url(host: request.host_with_port, protocol: request.protocol)
+    # Force HTTPS for production/Heroku deployments
+    protocol = Rails.env.production? ? 'https://' : request.protocol
+    callback_url = ENV['LASTFM_CALLBACK_URL'] || lastfm_auth_callback_url(host: request.host_with_port, protocol: protocol)
 
     unless api_key
       redirect_to root_path, alert: 'Last.fm API not configured'
