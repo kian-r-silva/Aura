@@ -17,7 +17,7 @@ Rails.application.routes.draw do
     resources :reviews, only: %i[create]
   end
   # top-level review routes for creating reviews not tied to an existing album yet
-  resources :reviews, only: %i[new create]
+  resources :reviews, only: %i[new create edit update index]
 
   resources :songs, only: %i[index show]
 
@@ -32,12 +32,6 @@ Rails.application.routes.draw do
     end
   end
 
-  # MusicBrainz JSON search endpoint used by the manual review autocomplete
-  get '/musicbrainz/search', to: 'musicbrainz#search', defaults: { format: :json }
-
-  # Create a review directly from a MusicBrainz selection (AJAX POST)
-  post '/reviews/musicbrainz_create', to: 'reviews#musicbrainz_create', as: :musicbrainz_create_review
-  
   # Last.fm authentication
   get '/auth/lastfm', to: 'lastfm_auth#auth', as: :lastfm_auth
   get '/auth/lastfm/callback', to: 'lastfm_auth#callback', as: :lastfm_auth_callback

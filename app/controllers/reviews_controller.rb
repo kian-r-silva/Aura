@@ -1,6 +1,12 @@
 class ReviewsController < ApplicationController
   
-  before_action :require_login, only: [:create]
+  before_action :require_login, only: [:create, :edit, :update]
+  before_action :set_review, only: [:edit, :update]
+  before_action :authorize_user, only: [:edit, :update]
+
+  def index
+    @reviews = Review.includes(:song, :user).order(created_at: :desc).limit(50)
+  end
 
   def new
     @review = Review.new
@@ -50,46 +56,40 @@ class ReviewsController < ApplicationController
     else
       flash.now[:alert] = "Unable to save review: #{review.errors.full_messages.join(', ')}"
       @song = song
-      # ensure the view has the reviews collection (songs#show expects @reviews)
-      @reviews = @song.reviews.order(created_at: :desc)
       @review = review
-      render 'songs/show', status: :unprocessable_entity
+      @song_image = fetch_song_image(@song) if @song.artist.present? && @song.title.present?
+      render :new, status: :unprocessable_entity
     end
   end
 
-  # Create a new review from a MusicBrainz selection. This endpoint is used by the
-  # client-side 'Review' button on suggestions and returns JSON so the client can
-  # redirect to the created album or show an error.
-  def musicbrainz_create
-    unless current_user
-      render json: { success: false, error: 'Must be signed in' }, status: :unauthorized
-      return
-    end
+  def edit
+    @song = @review.song
+    @song_image = fetch_song_image(@song) if @song.artist.present? && @song.title.present?
+  end
 
-    track_name = params[:track_name].to_s.strip
-    album_title = params[:album_title].to_s.strip
-    artists = params[:artists].to_s.strip
-
-    song = if album_title.present? && artists.present?
-             Song.find_or_create_by(title: track_name.presence || track_name, artist: artists) do |s|
-               s.album = album_title
-             end
-           else
-             # fallback: create or find a song record using track_name/artist info
-             Song.find_or_create_by(title: track_name.presence || 'Unknown Track',
-                                    artist: artists.presence || 'Unknown Artist')
-           end
-
-    review = song.reviews.build(user: current_user, rating: params[:rating], comment: params[:comment].to_s)
-
-    if review.save
-      render json: { success: true, review_id: review.id, song_id: song.id, redirect: song_path(song) }
+  def update
+    @song = @review.song
+    
+    if @review.update(review_params)
+      redirect_to song_path(@song), notice: 'Review updated successfully'
     else
-      render json: { success: false, errors: review.errors.full_messages }, status: :unprocessable_entity
+      flash.now[:alert] = "Unable to update review: #{@review.errors.full_messages.join(', ')}"
+      @song_image = fetch_song_image(@song) if @song.artist.present? && @song.title.present?
+      render :edit, status: :unprocessable_entity
     end
   end
 
   private
+
+  def set_review
+    @review = Review.find(params[:id])
+  end
+
+  def authorize_user
+    unless @review.user == current_user
+      redirect_to root_path, alert: 'You are not authorized to edit this review'
+    end
+  end
 
   def review_params
     params.require(:review).permit(:rating, :comment)

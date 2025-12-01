@@ -1,37 +1,6 @@
 require 'rails_helper'
 
 RSpec.describe ReviewsController, type: :controller do
-  describe 'POST #musicbrainz_create' do
-    let(:user) { User.create!(email: 'rb@example.com', name: 'RB', username: 'rb1', password: 'password') }
-
-    before do
-      allow(controller).to receive(:current_user).and_return(user)
-    end
-
-    it 'creates a song and review and returns json success' do
-      post :musicbrainz_create, params: { track_name: 'Test Song', artists: 'The Band', album_title: 'Best Of', rating: 5, comment: 'Really liked this track' * 2 }, as: :json
-
-      expect(response.content_type).to include('application/json')
-      json = JSON.parse(response.body)
-      expect(json['success']).to be true
-
-      song = Song.find_by(title: 'Test Song', artist: 'The Band')
-      expect(song).not_to be_nil
-      expect(song.reviews.count).to eq 1
-    end
-
-    it 'returns unauthorized when no current_user' do
-      allow(controller).to receive(:current_user).and_return(nil)
-      post :musicbrainz_create, params: { track_name: 'X', artists: 'Y', album_title: 'Z' }, as: :json
-      expect(response).to have_http_status(:unauthorized)
-      json = JSON.parse(response.body)
-      expect(json['success']).to be false
-    end
-  end
-end
-require 'rails_helper'
-
-RSpec.describe ReviewsController, type: :controller do
   render_views
 
   let(:user) { create(:user) }
@@ -55,12 +24,13 @@ RSpec.describe ReviewsController, type: :controller do
     end
 
     context 'with invalid params' do
-      it 'renders song show with unprocessable_entity' do
+      it 'renders new review form with unprocessable_entity' do
         # Create a song so the controller has a @song to render with errors
         song = create(:song)
         post :create, params: { song_id: song.id, review: { rating: '', comment: '' } }
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(response.body).to include('Unable to save review').or be_empty
+        # Verify no review was created
+        expect(Review.count).to eq(0)
       end
     end
   end
@@ -89,17 +59,15 @@ RSpec.describe ReviewsController, type: :controller do
     end
 
     context "with invalid params" do
-        it "renders albums/show with unprocessable_entity and sets alert" do
+        it "renders new review form with unprocessable_entity and sets alert" do
           song = create(:song)
 
           post :create, params: { song_id: song.id, review: { rating: 0, comment: "short" } }
 
           expect(response).to have_http_status(:unprocessable_entity)
           expect(flash[:alert]).to match(/Unable to save review/i)
-
-          review = controller.instance_variable_get(:@review)
-          expect(review).to be_present
-          expect(review.errors).not_to be_empty
+          # Verify no review was created
+          expect(Review.count).to eq(0)
         end
     end
   end

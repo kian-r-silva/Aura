@@ -53,3 +53,11 @@ When(/^I click Review for "([^"]*)" and submit a (\d+) star review with "([^"]*)
   fill_in "review_rating", with: rating
   click_button "Submit review"
 end
+Then(/^I should see "([^"]*)" on the song page$/) do |text|
+  expect(page).to have_content(text)
+end
+
+When(/^I visit my profile$/) do
+  user = User.find_by(email: 'tester@example.com')
+  visit user_path(user)
+end
