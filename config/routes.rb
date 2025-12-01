@@ -25,6 +25,7 @@ Rails.application.routes.draw do
     member do
       post :publish_to_lastfm
       post :add_lastfm_track
+      delete 'remove_song/:song_id', to: 'playlists#remove_song', as: :remove_song
     end
     collection do
       get :from_top_rated

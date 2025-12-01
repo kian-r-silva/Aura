@@ -1,9 +1,9 @@
 class PlaylistsController < ApplicationController
   # Only require login for actions that modify or create playlists
-  before_action :require_login, only: %i[new create from_top_rated publish_to_lastfm add_lastfm_track]
+  before_action :require_login, only: %i[new create from_top_rated publish_to_lastfm add_lastfm_track remove_song]
   # Only load playlist for actions that actually exist in this controller.
   # Rails 7.1+ raises when a callback lists non-existent actions, so keep this in sync.
-  before_action :set_playlist, only: %i[show publish_to_lastfm add_lastfm_track]
+  before_action :set_playlist, only: %i[show publish_to_lastfm add_lastfm_track remove_song]
 
   def index
     if params[:user_id].present?
@@ -88,6 +88,23 @@ class PlaylistsController < ApplicationController
 
     @playlist.add_song(song)
     redirect_to @playlist, notice: "Added \"#{song.title}\" to playlist."
+  end
+
+  # DELETE /playlists/:id/remove_song/:song_id
+  # Remove a song from the playlist
+  def remove_song
+    # Only playlist owner may remove songs
+    unless current_user && @playlist.user == current_user
+      redirect_to @playlist, alert: 'Not authorized to modify this playlist.' and return
+    end
+
+    song = Song.find_by(id: params[:song_id])
+    if song && @playlist.songs.include?(song)
+      @playlist.playlist_songs.where(song_id: song.id).destroy_all
+      redirect_to @playlist, notice: "Removed \"#{song.title}\" from playlist."
+    else
+      redirect_to @playlist, alert: 'Song not found in playlist.'
+    end
   end
 
   def song_responds_to_external_url?

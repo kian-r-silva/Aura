@@ -47,4 +47,48 @@ RSpec.describe PlaylistsController, type: :controller do
       expect(song.external_url).to eq('http://ex')
     end
   end
+
+  describe 'DELETE #remove_song' do
+    let!(:owner) { User.create!(email: 'own@example.com', name: 'Owner', username: 'owner', password: 'password') }
+    let!(:other) { User.create!(email: 'other@example.com', name: 'Other', username: 'other', password: 'password') }
+    let!(:playlist) { Playlist.create!(title: 'P1', user: owner) }
+    let!(:song) { Song.create!(title: 'Test Song', artist: 'Test Artist') }
+
+    before do
+      playlist.add_song(song)
+    end
+
+    it 'removes song from playlist when authorized' do
+      allow(controller).to receive(:current_user).and_return(owner)
+      expect(playlist.songs).to include(song)
+      
+      delete :remove_song, params: { id: playlist.id, song_id: song.id }
+      
+      playlist.reload
+      expect(playlist.songs).not_to include(song)
+      expect(response).to redirect_to(playlist_path(playlist))
+      expect(flash[:notice]).to match(/Removed "#{song.title}" from playlist/)
+    end
+
+    it 'rejects when not authorized' do
+      allow(controller).to receive(:current_user).and_return(other)
+      
+      delete :remove_song, params: { id: playlist.id, song_id: song.id }
+      
+      playlist.reload
+      expect(playlist.songs).to include(song)
+      expect(response).to redirect_to(playlist_path(playlist))
+      expect(flash[:alert]).to match(/Not authorized/i)
+    end
+
+    it 'handles song not in playlist' do
+      allow(controller).to receive(:current_user).and_return(owner)
+      other_song = Song.create!(title: 'Other Song', artist: 'Other Artist')
+      
+      delete :remove_song, params: { id: playlist.id, song_id: other_song.id }
+      
+      expect(response).to redirect_to(playlist_path(playlist))
+      expect(flash[:alert]).to match(/Song not found in playlist/i)
+    end
+  end
 end
