@@ -10,9 +10,9 @@
   <div class="search-section">
     <h3>Search Last.fm</h3>
     <p class="section-description">Find any song or artist and write a review</p>
-    <%= form_with url: lastfm_search_path, method: :get, local: true do |f| %>
-      <div class="search-form-group">
-        <%= f.text_field :q, placeholder: 'Search by song title or artist name...', value: params[:q], class: 'search-input' %>
+    <%= form_with url: lastfm_search_path, method: :get, local: true, html: { class: 'search-form' } do |f| %>
+      <div class="search-form-group " >
+        <%= f.text_field :q, placeholder: 'Search by song title or artist name...', value: params[:q], class: 'search-input width-full' %>
         <%= f.submit 'Search & Review', class: 'btn btn-secondary' %>
       </div>
     <% end %>

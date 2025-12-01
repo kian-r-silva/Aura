@@ -353,10 +353,25 @@ input[type="submit"]:active,
   margin-bottom: var(--spacing-md);
 }
 
+.search-form {
+  width: 100%;
+  max-width: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  border: none !important;
+}
+
 .search-form-group {
   display: flex;
   gap: var(--spacing-sm);
   align-items: center;
+  width: 100%;
+}
+
+.width-full {
+  width: 100% !important;
 }
 
 .search-input {
