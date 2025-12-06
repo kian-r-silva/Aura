@@ -23,7 +23,7 @@ class UsersController < ApplicationController
       redirect_to lastfm_auth_path(signup_flow: true), allow_other_host: false
     else
       # Show validation errors
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 

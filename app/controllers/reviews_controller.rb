@@ -58,7 +58,7 @@ class ReviewsController < ApplicationController
       @song = song
       @review = review
       @song_image = fetch_song_image(@song) if @song.artist.present? && @song.title.present?
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -75,7 +75,7 @@ class ReviewsController < ApplicationController
     else
       flash.now[:alert] = "Unable to update review: #{@review.errors.full_messages.join(', ')}"
       @song_image = fetch_song_image(@song) if @song.artist.present? && @song.title.present?
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 

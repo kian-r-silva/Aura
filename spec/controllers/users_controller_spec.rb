@@ -19,7 +19,7 @@ RSpec.describe UsersController, type: :controller do
     context 'with invalid params' do
       it 'renders new with validation errors' do
         post :signup_with_lastfm, params: { user: { name: '', username: '', email: 'bad', password: 'short', password_confirmation: 'short' } }
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(session[:pending_signup]).to be_nil
       end
     end

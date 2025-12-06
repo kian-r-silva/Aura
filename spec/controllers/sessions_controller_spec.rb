@@ -23,9 +23,9 @@ RSpec.describe SessionsController, type: :controller do
     end
 
     context 'with invalid credentials' do
-      it 'renders new with unprocessable_entity' do
+      it 'renders new with unprocessable_content' do
         post :create, params: { login: user.username, password: 'wrong' }
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(response.body).to include('Invalid login or password')
       end
     end

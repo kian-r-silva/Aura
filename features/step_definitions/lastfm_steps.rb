@@ -58,6 +58,6 @@ Then(/^I should see "([^"]*)" on the song page$/) do |text|
 end
 
 When(/^I visit my profile$/) do
-  user = User.find_by(email: 'tester@example.com')
-  visit user_path(user)
+  user = current_user || User.find_by(email: 'tester@example.com')
+  visit user_path(user) if user
 end

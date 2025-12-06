@@ -33,7 +33,7 @@ class PlaylistsController < ApplicationController
       end
       redirect_to @playlist, notice: 'Playlist created.'
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 

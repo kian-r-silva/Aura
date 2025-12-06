@@ -100,7 +100,7 @@ bin/rails server -p 3000
 Open http://localhost:3000 in your browser.
 
 
-Running tests (RSpec + Cucumber)
+Running tests SimpleCov (RSpec + Cucumber)
 --------------------------------
 We provide a rake task that runs RSpec then Cucumber under SimpleCov and merges coverage results into a single HTML report.
 

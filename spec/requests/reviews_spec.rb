@@ -52,7 +52,7 @@ RSpec.describe "Reviews", type: :request do
           post reviews_path, params: params
         }.not_to change(Review, :count)
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(response.body).to include('Unable to save review')
       end
 
@@ -66,7 +66,7 @@ RSpec.describe "Reviews", type: :request do
           post reviews_path, params: params
         }.not_to change(Review, :count)
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
 
       it "does not create review without comment" do
@@ -79,7 +79,7 @@ RSpec.describe "Reviews", type: :request do
           post reviews_path, params: params
         }.not_to change(Review, :count)
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
 
       it "does not create review without rating" do
@@ -92,7 +92,7 @@ RSpec.describe "Reviews", type: :request do
           post reviews_path, params: params
         }.not_to change(Review, :count)
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
     end
   end

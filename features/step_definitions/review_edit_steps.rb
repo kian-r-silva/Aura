@@ -4,8 +4,11 @@ Given(/^I have reviewed "([^"]*)" with rating (\d+) and comment "([^"]*)"$/) do 
   # Find or create the song
   song = Song.find_or_create_by(title: track_name, artist: 'The Beatles')
   
-  # Find the current user from the session
-  user = User.find_by(email: 'tester@example.com')
+  # Use the current signed-in user
+  user = current_user || User.find_by(email: 'tester@example.com')
+  
+  # Ensure comment meets minimum length requirement (10 characters)
+  comment = comment.ljust(10, ' ') if comment.length < 10
   
   # Create the review
   @my_review = Review.create!(

@@ -7,6 +7,23 @@
 
 require 'cucumber/rails'
 
+# Include RSpec mocks for Cucumber
+require 'rspec/mocks'
+
+World(RSpec::Mocks::ExampleMethods)
+
+Before do
+  RSpec::Mocks.setup
+end
+
+After do
+  begin
+    RSpec::Mocks.verify
+  ensure
+    RSpec::Mocks.teardown
+  end
+end
+
 # Enable SimpleCov for cucumber runs when requested. This mirrors the RSpec
 # configuration and writes a separate resultset so we can collate results
 # from RSpec + Cucumber later.

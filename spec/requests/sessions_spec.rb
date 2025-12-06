@@ -46,21 +46,21 @@ RSpec.describe 'Sessions', type: :request do
       it 'does not create session with wrong password' do
         post session_path, params: { login: user.username, password: 'wrongpassword' }
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(response.body).to include('Invalid login or password')
       end
 
       it 'does not create session with non-existent username' do
         post session_path, params: { login: 'nonexistent', password: 'password123' }
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(response.body).to include('Invalid login or password')
       end
 
       it 'does not create session with empty credentials' do
         post session_path, params: { login: '', password: '' }
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
     end
   end
