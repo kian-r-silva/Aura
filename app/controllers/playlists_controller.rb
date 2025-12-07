@@ -46,6 +46,13 @@ class PlaylistsController < ApplicationController
       return
     end
 
+    # Check if user already has a "My Top Rated Songs" playlist to prevent duplicates
+    existing_playlist = current_user.playlists.find_by(title: "My Top Rated Songs")
+    if existing_playlist
+      redirect_to existing_playlist, alert: 'You already have a "My Top Rated Songs" playlist. You can edit or delete it if needed.'
+      return
+    end
+
     top = AnalyticsService.new(current_user).user_top_rated_songs(limit: 10)
     @playlist = current_user.playlists.create(title: "My Top Rated Songs")
     top.each { |s| @playlist.add_song(s) }
