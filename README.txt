@@ -5,6 +5,9 @@ Team
 - Joao Pedro Hall Lima (UNI: jh4645)
 - Nick Felix (UNI: nf2573)
 
+NOTE FOR TAs: The database was reset for consistency in user experience, so creating a new account will be required to interact with the app. 
+    See line 96 in the README for SimpleCov usage instructions.
+
 Application URL (deployed):
 - https://aura-engineering-saas-279c3bd96a5a.herokuapp.com/
 
@@ -77,16 +80,6 @@ bin/rails db:create db:migrate
 
 # Optional: seed data (if seeds.rb present)
 bin/rails db:seed
-```
-
-Test database
--------------
-Ensure the test database schema is present before running specs. Run either:
-
-```bash
-bin/rails db:migrate RAILS_ENV=test
-# or (preferred when starting fresh):
-bin/rails db:schema:load RAILS_ENV=test
 ```
 
 Running the app locally
