@@ -2,8 +2,9 @@
 # It is required only in the test environment.
 if ENV['RAILS_ENV'] == 'test' || ENV['SPEC_COVERAGE'] == 'true'
   require 'simplecov'
-  SimpleCov.command_name 'rspec'
+  SimpleCov.command_name 'RSpec'
   SimpleCov.coverage_dir 'coverage'
+  SimpleCov.merge_timeout 3600 # Merge results from the last hour
   SimpleCov.start 'rails' do
     enable_coverage :branch
     add_filter '/spec/'

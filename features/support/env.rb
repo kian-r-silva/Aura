@@ -29,8 +29,9 @@ end
 # from RSpec + Cucumber later.
 if ENV['CUCUMBER_COVERAGE'] == 'true' || ENV['RAILS_COVERAGE'] == 'true'
   require 'simplecov'
-  SimpleCov.command_name 'cucumber'
+  SimpleCov.command_name 'Cucumber'
   SimpleCov.coverage_dir 'coverage'
+  SimpleCov.merge_timeout 3600 # Merge results from the last hour
   SimpleCov.start 'rails' do
     enable_coverage :branch
     add_filter '/features/'

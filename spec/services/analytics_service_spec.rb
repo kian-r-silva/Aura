@@ -258,8 +258,9 @@ RSpec.describe AnalyticsService, type: :service do
       service = AnalyticsService.new
       first_call = service.aura_top_rated_songs(limit: 10)
 
-      # Modify data
-      create(:review, user: @user1, song: @song2, rating: 5, comment: 'Changed Now!')
+      # Modify data with a new user to avoid duplicate review validation
+      new_user = create(:user)
+      create(:review, user: new_user, song: @song2, rating: 5, comment: 'Changed Now!')
 
       second_call = service.aura_top_rated_songs(limit: 10)
 
